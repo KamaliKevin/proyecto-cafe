@@ -5,6 +5,13 @@ let teacherSubjects = [
         subjectId: 1,
         distribution: "3+2+2",
         comments: "- Evitar días partidos, teniendo días de mañana o de tarde<br>- No trabajar el viernes tarde"
+    },
+    {
+        id: 1,
+        teacherId: 1,
+        subjectId: 2,
+        distribution: "2+2+2",
+        comments: "[Sin especificar]"
     }
     // NOTA: Aquí deberían ir las relaciones entre los módulos y los profesores.
 ];
@@ -52,7 +59,7 @@ function getAllTeacherSubjectData(teacherId) {
  * @param {number} teacherId ID del profesor/a
  * @return {number[]} Arreglo de IDs de las relaciones del profesor/a y un módulo
 */
-function getTeacherSubjectIds(teacherId){
+function getAllTeacherSubjectIds(teacherId){
     let data = getAllTeacherSubjectData(teacherId);
     let ids = [];
 
@@ -71,7 +78,7 @@ function getTeacherSubjectIds(teacherId){
  * @param {number} teacherId ID del profesor/a
  * @return {number[]} Arreglo de IDs de módulos
 */
-function getTeacherSubjectId(teacherId){
+function getAllSubjectIds(teacherId){
     let data = getAllTeacherSubjectData(teacherId);
     let ids = [];
 

@@ -33,6 +33,7 @@
 
                 <!-- Contenido del formulario -->
                 <div class="py-3 px-5" id="formContent">
+                    <!-- Datos del profesor -->
                     <div class="mb-3">
                         <label for="firstName" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="firstName" name="firstName" disabled>
@@ -49,9 +50,14 @@
                         <label for="specialty" class="form-label">Especialidad</label>
                         <input type="text" class="form-control" id="specialty" name="specialty" disabled>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="schoolYear" class="form-label">Año escolar</label>
                         <input type="text" class="form-control" id="schoolYear" name="schoolYear" disabled>
+                    </div>
+
+                    <!-- Datos de los módulos -->
+                    <div class="accordion mb-4" id="subjectContainer">
+                        <!-- Aquí habrían varios desplegables de acordeón, cada uno siendo un módulo de un profesor -->
                     </div>
 
                     <!-- Opciones del formulario -->
@@ -60,6 +66,9 @@
                             <i class="fa-solid fa-plus text-white"></i> Añadir módulo
                         </button>
                     </div>
+
+                    <!-- Total de horas -->
+                    <p>Total del horas: <span id="totalHours"></span></p>
                 </div>
             </form>
         </div>
