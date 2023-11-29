@@ -76,7 +76,7 @@ function showAllTeacherSubjectData(teacherId) {
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#subject${teacherSubjectCount}Data" aria-expanded="false" 
                         aria-controls="subject${teacherSubjectCount}Data">
-                    Módulo #${teacherSubjectCount}
+                    ${teacherSubjectCount}
                 </button>
             </h2>
             <div id="subject${teacherSubjectCount}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
