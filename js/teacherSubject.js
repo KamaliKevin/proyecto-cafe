@@ -7,7 +7,7 @@ let teacherSubjects = [
         comments: "- Evitar días partidos, teniendo días de mañana o de tarde<br>- No trabajar el viernes tarde"
     },
     {
-        id: 1,
+        id: 2,
         teacherId: 1,
         subjectId: 2,
         distribution: "2+2+2",
@@ -19,16 +19,15 @@ let teacherSubjects = [
 
 /**
  * Devuelve un objeto con los datos de un módulo relacionado al profesor/a
- * @param {number} teacherId ID del profesor/a
- * @param {number} subjectId ID del módulo
+ * @param {number} id ID de la relación
  * @return {object} Objeto con los datos relacionales
  */
-function getTeacherSubjectData(teacherId, subjectId) {
+function getTeacherSubjectData(id) {
     let data = {};
 
-    teacherSubjects.forEach(relationship => {
-        if(relationship.teacherId === teacherId && relationship.subjectId === subjectId){
-            data = relationship;
+    teacherSubjects.forEach(teacherSubject => {
+        if(teacherSubject.id === id){
+            data = teacherSubject;
         }
     });
 
@@ -44,13 +43,32 @@ function getTeacherSubjectData(teacherId, subjectId) {
 function getAllTeacherSubjectData(teacherId) {
     let data = [];
 
-    teacherSubjects.forEach(relationship => {
-        if(relationship.teacherId === teacherId){
-            data.push(relationship);
+    teacherSubjects.forEach(teacherSubject => {
+        if(teacherSubject.teacherId === teacherId){
+            data.push(teacherSubject);
         }
     });
 
     return data;
+}
+
+
+/**
+ * Devuelve el ID de un módulo relacionado al profesor/a
+ * @param {number} teacherId ID del profesor/a
+ * @param {number} subjectId ID del módulo
+ * @return {number} ID de la relación
+ */
+function getTeacherSubjectId(teacherId, subjectId) {
+    let id = 0;
+
+    teacherSubjects.forEach(teacherSubject => {
+        if(teacherSubject.teacherId === teacherId && teacherSubject.subjectId === subjectId){
+            id = teacherSubject.id;
+        }
+    });
+
+    return id;
 }
 
 
@@ -63,9 +81,9 @@ function getAllTeacherSubjectIds(teacherId){
     let data = getAllTeacherSubjectData(teacherId);
     let ids = [];
 
-    data.forEach(relationship => {
-        if(relationship.teacherId === teacherId){
-            ids.push(relationship.id);
+    data.forEach(teacherSubject => {
+        if(teacherSubject.teacherId === teacherId){
+            ids.push(teacherSubject.id);
         }
     });
 
@@ -82,9 +100,9 @@ function getAllSubjectIds(teacherId){
     let data = getAllTeacherSubjectData(teacherId);
     let ids = [];
 
-    data.forEach(relationship => {
-        if(relationship.teacherId === teacherId){
-            ids.push(relationship.subjectId);
+    data.forEach(teacherSubject => {
+        if(teacherSubject.teacherId === teacherId){
+            ids.push(teacherSubject.subjectId);
         }
     });
 
@@ -130,12 +148,12 @@ function addTeacherSubjectData(newId, newTeacherId, newSubjectId, newDistributio
  * @return {void}
 */
 function setTeacherSubjectData(id, newTeacherId = "", newSubjectId = "", newDistribution = "", newComments = "") {
-    teacherSubjects.forEach(relationship => {
-        if(relationship.id === id){
-            if(newTeacherId) relationship.teacherId = newTeacherId;
-            if(newSubjectId) relationship.subjectId = newSubjectId;
-            if(newDistribution) relationship.distribution = newDistribution;
-            if(newComments) relationship.comments = newComments;
+    teacherSubjects.forEach(teacherSubject => {
+        if(teacherSubject.id === id){
+            if(newTeacherId) teacherSubject.teacherId = newTeacherId;
+            if(newSubjectId) teacherSubject.subjectId = newSubjectId;
+            if(newDistribution) teacherSubject.distribution = newDistribution;
+            if(newComments) teacherSubject.comments = newComments;
         }
     });
 }
@@ -146,9 +164,5 @@ function setTeacherSubjectData(id, newTeacherId = "", newSubjectId = "", newDist
 * @param {number} id ID de la relación
 */
 function deleteTeacherSubjectData(id) {
-    teacherSubjects.forEach(relationship => {
-        if(relationship.id === id){
-            teacherSubjects.splice(id - 1, 1);
-        }
-    });
+    teacherSubjects = teacherSubjects.filter(teacherSubject => teacherSubject.id !== id);
 }
