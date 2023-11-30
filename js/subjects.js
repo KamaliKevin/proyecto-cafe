@@ -46,12 +46,5 @@ function getSubjectData(id) {
  * @return {number} ID del módulo
  */
 function getSubjectId(name) {
-    let id = 0;
-    subjects.forEach(subject => {
-        if (subject.name === name) {
-            id = subject.id;
-        }
-    });
-
-    return id;
+    return subjects.findIndex((subject) => subject.name == name) + 1
 }
