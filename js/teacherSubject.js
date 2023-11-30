@@ -12,6 +12,13 @@ let teacherSubjects = [
         subjectId: 2,
         distribution: "2+2+2",
         comments: "[Sin especificar]"
+    },
+    {
+        id: 3,
+        teacherId: 2,
+        subjectId: 2,
+        distribution: "2+2+2",
+        comments: "[Sin especificar]"
     }
     // NOTA: Aquí deberían ir las relaciones entre los módulos y los profesores.
 ];
@@ -33,15 +40,7 @@ function getTeacherSubjectData(id) {
  * @return {object[]} Arreglo de objetos con datos relacionales
 */
 function getAllTeacherSubjectData(teacherId) {
-    let data = [];
-
-    teacherSubjects.forEach(teacherSubject => {
-        if(teacherSubject.teacherId === teacherId){
-            data.push(teacherSubject);
-        }
-    });
-
-    return data;
+    return teacherSubjects.filter(subject => subject.teacherId == teacherId);
 }
 
 
