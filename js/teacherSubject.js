@@ -142,5 +142,5 @@ function setTeacherSubjectData(id, newTeacherId = "", newSubjectId = "", newDist
 * @param {number} id ID de la relación
 */
 function deleteTeacherSubjectData(id) {
-    teacherSubjects = teacherSubjects.filter(teacherSubject => teacherSubject.id !== id);
+    teacherSubjects.splice(id - 1, 1);
 }
