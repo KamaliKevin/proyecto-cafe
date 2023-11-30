@@ -30,7 +30,7 @@ let teacherSubjects = [
  * @return {object} Objeto con los datos relacionales
  */
 function getTeacherSubjectData(id) {
-    return teacherSubjects[id-1];
+    return teacherSubjects[id - 1];
 }
 
 
@@ -51,7 +51,7 @@ function getAllTeacherSubjectData(teacherId) {
  * @return {number} ID de la relación
  */
 function getTeacherSubjectId(teacherId, subjectId) {
-    return teacherSubjects.findIndex((subject) => subject.teacherId == teacherId && subject.subjectId == subjectId) +1
+    return teacherSubjects.findIndex((subject) => subject.teacherId == teacherId && subject.subjectId == subjectId) + 1
 }
 
 
@@ -60,12 +60,12 @@ function getTeacherSubjectId(teacherId, subjectId) {
  * @param {number} teacherId ID del profesor/a
  * @return {number[]} Arreglo de IDs de las relaciones del profesor/a y un módulo
 */
-function getAllTeacherSubjectIds(teacherId){
+function getAllTeacherSubjectIds(teacherId) {
     let data = getAllTeacherSubjectData(teacherId);
     let ids = [];
 
     data.forEach(teacherSubject => {
-        if(teacherSubject.teacherId === teacherId){
+        if (teacherSubject.teacherId === teacherId) {
             ids.push(teacherSubject.id);
         }
     });
@@ -79,12 +79,12 @@ function getAllTeacherSubjectIds(teacherId){
  * @param {number} teacherId ID del profesor/a
  * @return {number[]} Arreglo de IDs de módulos
 */
-function getAllSubjectIds(teacherId){
+function getAllSubjectIds(teacherId) {
     let data = getAllTeacherSubjectData(teacherId);
     let ids = [];
 
     data.forEach(teacherSubject => {
-        if(teacherSubject.teacherId === teacherId){
+        if (teacherSubject.teacherId === teacherId) {
             ids.push(teacherSubject.subjectId);
         }
     });
@@ -131,16 +131,11 @@ function addTeacherSubjectData(newId, newTeacherId, newSubjectId, newDistributio
  * @return {void}
 */
 function setTeacherSubjectData(id, newTeacherId = "", newSubjectId = "", newDistribution = "", newComments = "") {
-    teacherSubjects.forEach(teacherSubject => {
-        if(teacherSubject.id === id){
-            if(newTeacherId) teacherSubject.teacherId = newTeacherId;
-            if(newSubjectId) teacherSubject.subjectId = newSubjectId;
-            if(newDistribution) teacherSubject.distribution = newDistribution;
-            if(newComments) teacherSubject.comments = newComments;
-        }
-    });
+    if (newTeacherId) teacherSubjects[id - 1].teacherId = newTeacherId;
+    if (newSubjectId) teacherSubjects[id - 1].subjectId = newSubjectId;
+    if (newDistribution) teacherSubjects[id - 1].distribution = newDistribution;
+    if (newComments) teacherSubjects[id - 1].comments = newComments;
 }
-
 
 /**
 * Borra la relación de profesor/a y módulo en la base de datos.
