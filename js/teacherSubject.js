@@ -23,15 +23,7 @@ let teacherSubjects = [
  * @return {object} Objeto con los datos relacionales
  */
 function getTeacherSubjectData(id) {
-    let data = {};
-
-    teacherSubjects.forEach(teacherSubject => {
-        if(teacherSubject.id === id){
-            data = teacherSubject;
-        }
-    });
-
-    return data;
+    return teacherSubjects[id-1];
 }
 
 
