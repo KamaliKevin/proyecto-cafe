@@ -36,14 +36,7 @@ let subjects = [
  * @return {object} Objeto con los datos de dicho módulo
 */
 function getSubjectData(id) {
-    let data = {};
-    subjects.forEach(subject => {
-        if(subject.id === id){
-            data = subject;
-        }
-    });
-
-    return data;
+    return subjects[id-1];
 }
 
 
