@@ -51,15 +51,7 @@ function getAllTeacherSubjectData(teacherId) {
  * @return {number} ID de la relación
  */
 function getTeacherSubjectId(teacherId, subjectId) {
-    let id = 0;
-
-    teacherSubjects.forEach(teacherSubject => {
-        if(teacherSubject.teacherId === teacherId && teacherSubject.subjectId === subjectId){
-            id = teacherSubject.id;
-        }
-    });
-
-    return id;
+    return teacherSubjects.findIndex((subject) => subject.teacherId == teacherId && subject.subjectId == subjectId) +1
 }
 
 
