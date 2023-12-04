@@ -1,22 +1,19 @@
 let teacherSubjects = [
     {
-        id: 1,
-        teacherId: 1,
-        subjectId: 1,
+        teacherIndex: 0,
+        subjectIndex: 0,
         distribution: "3+2+2",
         comments: "- Evitar días partidos, teniendo días de mañana o de tarde<br>- No trabajar el viernes tarde"
     },
     {
-        id: 2,
-        teacherId: 1,
-        subjectId: 2,
+        teacherIndex: 0,
+        subjectIndex: 1,
         distribution: "2+2+2",
         comments: "[Sin especificar]"
     },
     {
-        id: 3,
-        teacherId: 2,
-        subjectId: 2,
+        teacherIndex: 1,
+        subjectIndex: 0,
         distribution: "2+2+2",
         comments: "[Sin especificar]"
     }
@@ -26,92 +23,74 @@ let teacherSubjects = [
 
 /**
  * Devuelve un objeto con los datos de un módulo relacionado al profesor/a
- * @param {number} id ID de la relación
+ * @param {number} index Index de la relación
  * @return {object} Objeto con los datos relacionales
  */
-function getTeacherSubjectData(id) {
-    return teacherSubjects[id - 1];
+function getTeacherSubjectData(index) {
+    return teacherSubjects[index];
 }
 
 
 /**
 * Devuelve un arreglo de objetos con todos los datos de módulos relacionados al profesor/a
-* @param {number} teacherId ID del profesor/a
+* @param {number} teacherIndex Índice del profesor/a
  * @return {object[]} Arreglo de objetos con datos relacionales
 */
-function getAllTeacherSubjectData(teacherId) {
-    return teacherSubjects.filter(subject => subject.teacherId == teacherId);
+function getAllTeacherSubjectData(teacherIndex) {
+    return teacherSubjects.filter(teacherSubject => teacherSubject.teacherIndex === teacherIndex);
 }
 
 
 /**
- * Devuelve el ID de un módulo relacionado al profesor/a
- * @param {number} teacherId ID del profesor/a
- * @param {number} subjectId ID del módulo
- * @return {number} ID de la relación
+ * Devuelve el índice de un módulo relacionado al profesor/a
+ * @param {number} teacherIndex Índice del profesor/a
+ * @param {number} subjectIndex Índice del módulo
+ * @return {number} Índice de la relación
  */
-function getTeacherSubjectId(teacherId, subjectId) {
-    return teacherSubjects.findIndex((subject) => subject.teacherId == teacherId && subject.subjectId == subjectId) + 1
+function getTeacherSubjectIndex(teacherIndex, subjectIndex) {
+    return teacherSubjects.findIndex(teacherSubject =>
+        teacherSubject.teacherIndex === teacherIndex
+        && teacherSubject.subjectIndex === subjectIndex);
 }
 
 
 /**
-* Devuelve un arreglo con todos los IDs de las relaciones del profesor/a y un módulo
- * @param {number} teacherId ID del profesor/a
- * @return {number[]} Arreglo de IDs de las relaciones del profesor/a y un módulo
+* Devuelve un arreglo con todos los índices de las relaciones del profesor/a y un módulo
+ * @param {number} teacherIndex Índice del profesor/a
+ * @return {number[]} Arreglo de índices de las relaciones del profesor/a y un módulo
 */
-function getAllTeacherSubjectIds(teacherId) {
-    let data = getAllTeacherSubjectData(teacherId);
-    let ids = [];
-
-    data.forEach(teacherSubject => {
-        if (teacherSubject.teacherId === teacherId) {
-            ids.push(teacherSubject.id);
-        }
-    });
-
-    return ids;
+function getAllTeacherSubjectIndices(teacherIndex) {
+    return teacherSubjects.map((teacherSubject, index) => index);
 }
 
 
 /**
-* Devuelve un arreglo con todos los IDs de los módulos que imparte un profesor/a
- * @param {number} teacherId ID del profesor/a
- * @return {number[]} Arreglo de IDs de módulos
+* Devuelve un arreglo con todos los índices de los módulos que imparte un profesor/a
+ * @param {number} teacherIndex Índice del profesor/a
+ * @return {number[]} Arreglo de índices de módulos
 */
-function getAllSubjectIds(teacherId) {
-    let data = getAllTeacherSubjectData(teacherId);
-    let ids = [];
-
-    data.forEach(teacherSubject => {
-        if (teacherSubject.teacherId === teacherId) {
-            ids.push(teacherSubject.subjectId);
-        }
-    });
-
-    return ids;
+function getAllSubjectIndices(teacherIndex) {
+    return teacherSubjects.map(teacherSubject => teacherSubject.subjectIndex);
 }
 
 
 /**
 * Añade una nueva relación de profesor/a y módulo a la base de datos.
 * Si no se quiere añadir alguna propiedad no obligatoria, se deja una cadena vacía ("") para evitar que se añada
-* @param {number} newId ID de la relación
- * @param {number} newTeacherId ID del profesor/a
- * @param {number} newSubjectId ID del módulo
+ * @param {number} newTeacherIndex Índice del profesor/a
+ * @param {number} newSubjectIndex Índice del módulo
  * @param {string} newDistribution Distribución semanal de las horas
  * @param {string} newComments Comentarios adicionales
  * @return {void}
 */
-function addTeacherSubjectData(newId, newTeacherId, newSubjectId, newDistribution = "", newComments = "") {
+function addTeacherSubjectData(newTeacherIndex, newSubjectIndex, newDistribution = "", newComments = "") {
     let newData = {};
     let distributionValue = newDistribution ? newDistribution : "[Sin especificar]";
     let commentsValue = newComments ? newComments : "[Sin especificar]";
 
     newData = {
-        id: newId,
-        teacherId: newTeacherId,
-        subjectId: newSubjectId,
+        teacherIndex: newTeacherIndex,
+        subjectIndex: newSubjectIndex,
         distribution: distributionValue,
         comments: commentsValue
     };
@@ -123,24 +102,24 @@ function addTeacherSubjectData(newId, newTeacherId, newSubjectId, newDistributio
 /**
 * Actualiza los datos de una relación de profesor/a y módulo en la base de datos.
 * Si no se quiere actualizar alguna propiedad, se deja una cadena vacía ("") para evitar que se actualice.
- * @param {number} id ID de la relación
- * @param {number|string} newTeacherId ID del profesor/a
- * @param {number|string} newSubjectId ID del módulo
+ * @param {number} index Índice de la relación
+ * @param {number|string} newTeacherIndex Índice del profesor/a
+ * @param {number|string} newSubjectIndex Índice del módulo
  * @param {string} newDistribution Distribución semanal de las horas
  * @param {string} newComments Comentarios adicionales
  * @return {void}
 */
-function setTeacherSubjectData(id, newTeacherId = "", newSubjectId = "", newDistribution = "", newComments = "") {
-    if (newTeacherId) teacherSubjects[id - 1].teacherId = newTeacherId;
-    if (newSubjectId) teacherSubjects[id - 1].subjectId = newSubjectId;
-    if (newDistribution) teacherSubjects[id - 1].distribution = newDistribution;
-    if (newComments) teacherSubjects[id - 1].comments = newComments;
+function setTeacherSubjectData(index, newTeacherIndex = "", newSubjectIndex = "", newDistribution = "", newComments = "") {
+    if (newTeacherIndex) teacherSubjects[index].teacherIndex = newTeacherIndex;
+    if (newSubjectIndex) teacherSubjects[index].subjectIndex = newSubjectIndex;
+    if (newDistribution) teacherSubjects[index].distribution = newDistribution;
+    if (newComments) teacherSubjects[index].comments = newComments;
 }
 
 /**
 * Borra la relación de profesor/a y módulo en la base de datos.
-* @param {number} id ID de la relación
+* @param {number} index Index de la relación
 */
-function deleteTeacherSubjectData(id) {
-    teacherSubjects.splice(id - 1, 1);
+function deleteTeacherSubjectData(index) {
+    teacherSubjects.splice(index, 1);
 }
