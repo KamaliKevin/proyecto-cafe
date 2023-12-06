@@ -27,7 +27,7 @@
                 <!-- Logo -->
                 <div class="d-flex justify-content-center align-content-center pt-3">
                     <div class="logo-width">
-                        <img src="images/logo.png" class="img-fluid">
+                        <img src="images/logo.png" class="img-fluid" alt="Logo">
                     </div>
                 </div>
 
@@ -61,14 +61,17 @@
                     </div>
 
                     <!-- Opciones del formulario -->
-                    <div class="mb-3">
-                        <button type="button" class="btn btn-success" id="addSubjectBtn" name="addSubjectBtn">
-                            <i class="fa-solid fa-plus text-white"></i> Añadir módulo
-                        </button>
+                    <div class="mb-3" id="optionContainer">
+                        <!-- Aquí irían todas las opciones iniciales del formulario -->
                     </div>
 
                     <!-- Total de horas -->
-                    <p>Total del horas: <span id="totalHours"></span></p>
+                    <p class="mb-5">Total del horas: <span id="totalHours"></span></p>
+
+                    <!-- Módulos nuevos -->
+                    <div class="mb-3" id="addSubjectContainer">
+                        <!-- Aquí se pondría un formulario dinámico cuando se añade un módulo nuevo -->
+                    </div>
                 </div>
             </form>
         </div>

@@ -7,21 +7,33 @@ let currentRelationshipData = getAllRelationshipData(TEACHER_INDEX); // Arreglo 
 
 
 // ================== REFERENCIAS HTML ===================
+let formContentHTML = document.getElementById("formContent"); // Contenedor del formulario
 let firstNameHTML = document.getElementById("firstName");
 let lastNameHTML = document.getElementById("lastName");
 let departmentHTML = document.getElementById("department");
 let specialtyHTML = document.getElementById("specialty");
 let schoolYearHTML = document.getElementById("schoolYear");
 let subjectContainerHTML = document.getElementById("subjectContainer"); // Contenedor para los acordeones de materias
+let optionContainer = document.getElementById("optionContainer"); // Contenedor para las opciones del formulario
+let addSubjectContainerHTML = document.getElementById("addSubjectContainer"); // Contenedor para añadir módulos
 let totalHoursHTML = document.getElementById("totalHours"); // Horas totales de todos los módulos
 
 
 // ================== ESTADO INICIAL ===================
 showTeacherData(TEACHER_INDEX);
 showAllRelationshipData(TEACHER_INDEX);
+createAddSubjectBtn();
 
 
 // ================== EVENTOS FIJOS ===================
+formContentHTML.addEventListener("click", function (event) {
+    if(event.target.classList.contains("btn-success")
+        && event.target.textContent.includes("Añadir módulo")){
+
+        createAddRelationshipDataForm();
+    }
+});
+
 subjectContainerHTML.addEventListener("click", function (event) {
     let relationshipRef = getRelationshipRefFromEvent(event);
 
@@ -47,6 +59,21 @@ subjectContainerHTML.addEventListener("click", function (event) {
     }
 });
 
+addSubjectContainerHTML.addEventListener("click", function (event){
+    let relationshipRef = getRelationshipRefFromEvent(event);
+
+    if(event.target.classList.contains("btn-danger")
+        && event.target.textContent.includes("Cancelar módulo")){
+
+        cancelAddRelationshipData();
+    }
+    else if(event.target.classList.contains("btn-success")
+        && event.target.textContent.includes("Guardar módulo")){
+
+        saveAddRelationshipData(relationshipRef);
+    }
+});
+
 
 // ================== FUNCIONES ===================
 /**
@@ -55,29 +82,31 @@ subjectContainerHTML.addEventListener("click", function (event) {
  * @return {void}
  */
 function saveEditRelationshipData(relationshipRef) {
-    let specificSubjectEditBtnHTML = document.getElementById(`subject${relationshipRef}EditBtn`);
-    let specificSubjectDeleteBtnHTML = document.getElementById(`subject${relationshipRef}DeleteBtn`);
-    let specificSubjectTitleHTML = document.getElementById(`subject${relationshipRef}Title`);
-    let specificSubjectNameHTML = document.getElementById(`subject${relationshipRef}Name`);
-    let specificSubjectDistributionHTML = document.getElementById(`subject${relationshipRef}Distribution`);
-    let specificSubjectCommentsHTML = document.getElementById(`subject${relationshipRef}Comments`);
+    let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-    let specificSubjectIndex = getSubjectIndex(specificSubjectNameHTML.value);
-    let specificTeacherSubjectIndex = getRelationshipIndex(relationshipRef);
+    let originalRelationshipData = getRelationshipData(getRelationshipIndex(relationshipRef));
+    let originalSubjectIndex = getSubjectIndex(originalRelationshipData.name); // index de modulo original
+    console.log("Original subject index: " + originalSubjectIndex);
+    let originalTeacherSubjectIndex = getTeacherSubjectIndex(TEACHER_INDEX, originalSubjectIndex);
+    // PROBLEMA: ¿como distinguir el indice de "relationship" con el de "teacherSubject"?
+    console.log("Original teacher-subject index: " + originalTeacherSubjectIndex);
 
-    specificSubjectTitleHTML.textContent = specificSubjectNameHTML.value;
-    specificSubjectNameHTML.disabled = true;
-    specificSubjectDistributionHTML.disabled = true;
-    specificSubjectCommentsHTML.disabled = true;
+    let newSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value);
+    console.log("New subject index: " + newSubjectIndex);
 
-    specificSubjectNameHTML.removeEventListener("change", specificSubjectNameHTML.customToggleRelationShipDataRef);
-    delete specificSubjectNameHTML.customToggleRelationShipDataRef;
+    specificSubjectFields.titleHTML.textContent = specificSubjectFields.nameHTML.value;
+    specificSubjectFields.nameHTML.disabled = true;
+    specificSubjectFields.distributionHTML.disabled = true;
+    specificSubjectFields.commentsHTML.disabled = true;
 
-    specificSubjectEditBtnHTML.innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Editar módulo";
-    specificSubjectDeleteBtnHTML.innerHTML = "<i class='fa-solid fa-trash'></i> Eliminar módulo";
+    specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
+    delete specificSubjectFields.nameHTML.customToggleRelationShipDataRef;
 
-    setTeacherSubjectData(specificTeacherSubjectIndex, TEACHER_INDEX, specificSubjectIndex,
-        specificSubjectDistributionHTML.value, specificSubjectCommentsHTML.value);
+    specificSubjectFields.editBtnHTML.innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Editar módulo";
+    specificSubjectFields.deleteBtnHTML.innerHTML = "<i class='fa-solid fa-trash'></i> Eliminar módulo";
+
+    setTeacherSubjectData(originalTeacherSubjectIndex, TEACHER_INDEX, newSubjectIndex,
+        specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
 
     updateAllRelationshipData(TEACHER_INDEX);
 }
@@ -89,37 +118,28 @@ function saveEditRelationshipData(relationshipRef) {
  * @return {void}
  */
 function cancelEditRelationshipData(relationshipRef) {
-    let specificSubjectEditBtnHTML = document.getElementById(`subject${relationshipRef}EditBtn`);
-    let specificSubjectDeleteBtnHTML = document.getElementById(`subject${relationshipRef}DeleteBtn`);
-    let specificSubjectNameHTML = document.getElementById(`subject${relationshipRef}Name`);
-    let specificSubjectShiftTimeHTML = document.getElementById(`subject${relationshipRef}ShiftTime`);
-    let specificSubjectGradeHTML = document.getElementById(`subject${relationshipRef}Grade`);
-    let specificSubjectCourseNameHTML = document.getElementById(`subject${relationshipRef}CourseName`);
-    let specificSubjectClassroomHTML = document.getElementById(`subject${relationshipRef}Classroom`);
-    let specificSubjectHoursHTML = document.getElementById(`subject${relationshipRef}Hours`);
-    let specificSubjectDistributionHTML = document.getElementById(`subject${relationshipRef}Distribution`);
-    let specificSubjectCommentsHTML = document.getElementById(`subject${relationshipRef}Comments`);
+    let specificSubjectFields = getRelationshipFields(relationshipRef);
 
     let originalRelationshipData = getRelationshipData(getRelationshipIndex(relationshipRef));
 
-    specificSubjectNameHTML.value = originalRelationshipData.name;
-    specificSubjectShiftTimeHTML.value = originalRelationshipData.shiftTime;
-    specificSubjectGradeHTML.value = originalRelationshipData.grade;
-    specificSubjectCourseNameHTML.value = originalRelationshipData.courseName;
-    specificSubjectClassroomHTML.value = originalRelationshipData.classroom;
-    specificSubjectHoursHTML.value = originalRelationshipData.hours;
-    specificSubjectDistributionHTML.value = originalRelationshipData.distribution;
-    specificSubjectCommentsHTML.value = originalRelationshipData.comments;
+    specificSubjectFields.nameHTML.value = originalRelationshipData.name;
+    specificSubjectFields.shiftTimeHTML.value = originalRelationshipData.shiftTime;
+    specificSubjectFields.gradeHTML.value = originalRelationshipData.grade;
+    specificSubjectFields.courseNameHTML.value = originalRelationshipData.courseName;
+    specificSubjectFields.classroomHTML.value = originalRelationshipData.classroom;
+    specificSubjectFields.hoursHTML.value = originalRelationshipData.hours;
+    specificSubjectFields.distributionHTML.value = originalRelationshipData.distribution;
+    specificSubjectFields.commentsHTML.value = originalRelationshipData.comments;
 
-    specificSubjectNameHTML.disabled = true;
-    specificSubjectDistributionHTML.disabled = true;
-    specificSubjectCommentsHTML.disabled = true;
+    specificSubjectFields.nameHTML.disabled = true;
+    specificSubjectFields.distributionHTML.disabled = true;
+    specificSubjectFields.commentsHTML.disabled = true;
 
-    specificSubjectNameHTML.removeEventListener("change", specificSubjectNameHTML.customToggleRelationShipDataRef);
-    delete specificSubjectNameHTML.customToggleRelationShipDataRef;
+    specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
+    delete specificSubjectFields.nameHTML.customToggleRelationShipDataRef;
 
-    specificSubjectEditBtnHTML.innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Editar módulo";
-    specificSubjectDeleteBtnHTML.innerHTML = "<i class='fa-solid fa-trash'></i> Eliminar módulo";
+    specificSubjectFields.editBtnHTML.innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Editar módulo";
+    specificSubjectFields.deleteBtnHTML.innerHTML = "<i class='fa-solid fa-trash'></i> Eliminar módulo";
 }
 
 /**
@@ -128,22 +148,18 @@ function cancelEditRelationshipData(relationshipRef) {
  * @return {void}
  */
 function editRelationshipData(relationshipRef) {
-    let specificSubjectEditBtnHTML = document.getElementById(`subject${relationshipRef}EditBtn`);
-    let specificSubjectDeleteBtnHTML = document.getElementById(`subject${relationshipRef}DeleteBtn`);
-    let specificSubjectNameHTML = document.getElementById(`subject${relationshipRef}Name`);
-    let specificSubjectDistributionHTML = document.getElementById(`subject${relationshipRef}Distribution`);
-    let specificSubjectCommentsHTML = document.getElementById(`subject${relationshipRef}Comments`);
+    let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-    specificSubjectNameHTML.disabled = false;
-    specificSubjectDistributionHTML.disabled = false;
-    specificSubjectCommentsHTML.disabled = false;
+    specificSubjectFields.nameHTML.disabled = false;
+    specificSubjectFields.distributionHTML.disabled = false;
+    specificSubjectFields.commentsHTML.disabled = false;
 
     let toggleRelationshipDataRef = () => toggleRelationshipData(relationshipRef);
-    specificSubjectNameHTML.addEventListener("change", toggleRelationshipDataRef);
-    specificSubjectNameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
+    specificSubjectFields.nameHTML.addEventListener("change", toggleRelationshipDataRef);
+    specificSubjectFields.nameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
 
-    specificSubjectEditBtnHTML.innerHTML = "<i class='fa-solid fa-floppy-disk'></i> Guardar cambios";
-    specificSubjectDeleteBtnHTML.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Cancelar cambios";
+    specificSubjectFields.editBtnHTML.innerHTML = "<i class='fa-solid fa-floppy-disk'></i> Guardar cambios";
+    specificSubjectFields.deleteBtnHTML.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Cancelar cambios";
 }
 
 
@@ -155,9 +171,11 @@ function editRelationshipData(relationshipRef) {
 function deleteRelationshipData(relationshipRef){
     let specificSubjectContainerHTML = document.getElementById(`subject${relationshipRef}Container`);
 
-    let specificSubjectNameHTML = document.getElementById(`subject${relationshipRef}Name`);
-    let specificSubjectIndex = getSubjectIndex(specificSubjectNameHTML.value);
+    let specificSubjectFields = getRelationshipFields(relationshipRef);
+    let specificSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value);
     let specificTeacherSubjectIndex = getTeacherSubjectIndex(TEACHER_INDEX, specificSubjectIndex);
+
+    totalHoursHTML.textContent = (Number(totalHoursHTML.textContent) - Number(specificSubjectFields.hoursHTML.value)).toString();
 
     specificSubjectContainerHTML.remove();
 
@@ -165,26 +183,217 @@ function deleteRelationshipData(relationshipRef){
     updateAllRelationshipData(TEACHER_INDEX, true);
 }
 
+
+/**
+ * Guarda un módulo relacionado nuevo
+ * @param {number} relationshipRef Referencia numérica del módulo nuevo
+ * @return {void}
+ */
+function saveAddRelationshipData(relationshipRef) {
+    let specificSubjectFields = getRelationshipFields(relationshipRef);
+
+    subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationshipRef}Container">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#subject${relationshipRef}Data" aria-expanded="false" 
+                    aria-controls="subject${relationshipRef}Data" id="subject${relationshipRef}Title">
+                ${specificSubjectFields.nameHTML.value}
+            </button>
+        </h2>
+        <div id="subject${relationshipRef}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
+            <div class="accordion-body">
+                <form id="subject${relationshipRef}Form">
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}Name" class="form-label">Módulo</label>
+                        <select class="form-select" id="subject${relationshipRef}Name" 
+                        name="subject${relationshipRef}Name" disabled>
+                            <!-- Aquí van todos los nombres de módulos -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
+                        <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
+                        name="subject${relationshipRef}ShiftTime" value="${specificSubjectFields.shiftTimeHTML.value}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}Grade" class="form-label">Grado</label>
+                        <input type="text" class="form-control" id="subject${relationshipRef}Grade" 
+                        name="subject${relationshipRef}Grade" value="${specificSubjectFields.gradeHTML.value}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}CourseName" class="form-label">Ciclo</label>
+                        <input type="text" class="form-control" id="subject${relationshipRef}CourseName" 
+                        name="subject${relationshipRef}CourseName" value="${specificSubjectFields.courseNameHTML.value}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}Classroom" class="form-label">Aula</label>
+                        <input type="text" class="form-control" id="subject${relationshipRef}Classroom" 
+                        name="subject${relationshipRef}Classroom" value="${specificSubjectFields.classroomHTML.value}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}Hours" class="form-label">Horas semanales</label>
+                        <input type="text" class="form-control" id="subject${relationshipRef}Hours" 
+                        name="subject${relationshipRef}Hours" value="${specificSubjectFields.hoursHTML.value}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
+                        <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
+                        name="subject${relationshipRef}Distribution" value="${specificSubjectFields.distributionHTML.value}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
+                        <textarea class="form-control" id="subject${relationshipRef}Comments" 
+                        name="subject${relationshipRef}Comments" rows="5" disabled>${specificSubjectFields.commentsHTML.value}</textarea>
+                    </div>
+                    <button type="button" class="btn btn-warning" id="subject${relationshipRef}EditBtn">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar módulo
+                    </button>
+                    <button type="button" class="btn btn-danger" id="subject${relationshipRef}DeleteBtn">
+                        <i class="fa-solid fa-trash"></i> Eliminar módulo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>`;
+
+    subjects.forEach(subject => {
+        let subjectOptionHTML = document.createElement("option");
+        subjectOptionHTML.value = subject.name;
+        subjectOptionHTML.textContent = subject.name;
+        if(subject.name === specificSubjectFields.nameHTML.value){
+            subjectOptionHTML.selected = true;
+        }
+        subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+    });
+
+    addTeacherSubjectData(TEACHER_INDEX, getSubjectIndex(specificSubjectFields.nameHTML.value),
+        specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
+    updateAllRelationshipData(TEACHER_INDEX);
+
+    totalHoursHTML.textContent = (Number(totalHoursHTML.textContent) + Number(specificSubjectFields.hoursHTML.value)).toString();
+
+    specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
+    delete specificSubjectFields.nameHTML.customToggleRelationShipDataRef;
+
+    addSubjectContainerHTML.innerHTML = "";
+    createAddSubjectBtn();
+}
+
+
+/**
+ * Cancela guardar un módulo relacionado nuevo
+ * @return {void}
+ */
+function cancelAddRelationshipData(){
+    addSubjectContainerHTML.innerHTML = "";
+    createAddSubjectBtn();
+}
+
+
+/**
+ * Crea el formulario para la adición de módulos relacionados a un profesor/a
+ * @return {void}
+ */
+function createAddRelationshipDataForm() {
+    deleteAddSubjectBtn();
+    let relationshipRef = currentRelationshipData.length + 1;
+    addSubjectContainerHTML.innerHTML += `
+        <form class="mb-3" id="addSubjectForm">
+            <h5>Ponga los datos del nuevo módulo:</h5>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}Name" class="form-label">Módulo</label>
+                <select class="form-select" id="subject${relationshipRef}Name" 
+                name="subject${relationshipRef}Name">
+                    <!-- Aquí van todos los nombres de módulos -->
+                    <option value="-- Elija un módulo --">-- Elija un módulo --</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
+                <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
+                name="subject${relationshipRef}ShiftTime" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}Grade" class="form-label">Grado</label>
+                <input type="text" class="form-control" id="subject${relationshipRef}Grade" 
+                name="subject${relationshipRef}Grade" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}CourseName" class="form-label">Ciclo</label>
+                <input type="text" class="form-control" id="subject${relationshipRef}CourseName" 
+                name="subject${relationshipRef}CourseName" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}Classroom" class="form-label">Aula</label>
+                <input type="text" class="form-control" id="subject${relationshipRef}Classroom" 
+                name="subject${relationshipRef}Classroom" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}Hours" class="form-label">Horas semanales</label>
+                <input type="text" class="form-control" id="subject${relationshipRef}Hours" 
+                name="subject${relationshipRef}Hours" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
+                <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
+                name="subject${relationshipRef}Distribution">
+            </div>
+            <div class="mb-3">
+                <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
+                <textarea class="form-control" id="subject${relationshipRef}Comments" 
+                name="subject${relationshipRef}Comments" rows="5"></textarea>
+            </div>
+            <button type="button" class="btn btn-success" id="subject${relationshipRef}SaveBtn">
+                <i class='fa-solid fa-floppy-disk'></i> Guardar módulo
+            </button>
+            <button type="button" class="btn btn-danger" id="subject${relationshipRef}CancelBtn">
+                <i class='fa-solid fa-circle-xmark'></i> Cancelar módulo
+            </button>
+        </form>`;
+
+    subjects.forEach(subject => {
+        let subjectOptionHTML = document.createElement("option");
+        subjectOptionHTML.value = subject.name;
+        subjectOptionHTML.textContent = subject.name;
+        addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+    });
+
+    let subjectNameHTML = addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`);
+    let toggleRelationshipDataRef = () => toggleRelationshipData(relationshipRef);
+    subjectNameHTML.addEventListener("change", toggleRelationshipDataRef);
+    subjectNameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
+}
+
+
 /**
  * Cambia los datos de un módulo relacionado de acuerdo al valor actual del campo "Módulo"
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
  * @return {void}
  */
 function toggleRelationshipData(relationshipRef) {
-    let specificSubjectNameHTML = document.getElementById(`subject${relationshipRef}Name`);
-    let specificSubjectShiftTimeHTML = document.getElementById(`subject${relationshipRef}ShiftTime`);
-    let specificSubjectGradeHTML = document.getElementById(`subject${relationshipRef}Grade`);
-    let specificSubjectCourseNameHTML = document.getElementById(`subject${relationshipRef}CourseName`);
-    let specificSubjectClassroomHTML = document.getElementById(`subject${relationshipRef}Classroom`);
-    let specificSubjectHoursHTML = document.getElementById(`subject${relationshipRef}Hours`);
+    let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-    let newSubjectData = getSubjectData(getSubjectIndex(specificSubjectNameHTML.value));
-    specificSubjectShiftTimeHTML.value = newSubjectData.shiftTime;
-    specificSubjectGradeHTML.value = newSubjectData.grade;
-    specificSubjectCourseNameHTML.value = newSubjectData.courseName;
-    specificSubjectClassroomHTML.value = newSubjectData.classroom;
-    specificSubjectHoursHTML.value = newSubjectData.hours;
+    if(specificSubjectFields.nameHTML.value === "-- Elija un módulo --"){
+
+        specificSubjectFields.nameHTML.value = "";
+        specificSubjectFields.shiftTimeHTML.value = "";
+        specificSubjectFields.gradeHTML.value = "";
+        specificSubjectFields.courseNameHTML.value = "";
+        specificSubjectFields.classroomHTML.value = "";
+        specificSubjectFields.hoursHTML.value = "";
+    }
+    else {
+        let newSubjectData = getSubjectData(getSubjectIndex(specificSubjectFields.nameHTML.value));
+
+        specificSubjectFields.nameHTML.value = newSubjectData.name;
+        specificSubjectFields.shiftTimeHTML.value = newSubjectData.shiftTime;
+        specificSubjectFields.gradeHTML.value = newSubjectData.grade;
+        specificSubjectFields.courseNameHTML.value = newSubjectData.courseName;
+        specificSubjectFields.classroomHTML.value = newSubjectData.classroom;
+        specificSubjectFields.hoursHTML.value = newSubjectData.hours;
+    }
 }
+
 
 /**
  * Muestra todos los módulos relacionados a un profesor/a
@@ -247,25 +456,25 @@ function showAllRelationshipData(teacherIndex) {
                             <textarea class="form-control" id="subject${relationship.ref}Comments" 
                             name="subject${relationship.ref}Comments" rows="5" disabled>${relationship.comments}</textarea>
                         </div>
+                        <button type="button" class="btn btn-warning" id="subject${relationship.ref}EditBtn">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar módulo
+                        </button>
+                        <button type="button" class="btn btn-danger" id="subject${relationship.ref}DeleteBtn">
+                            <i class="fa-solid fa-trash"></i> Eliminar módulo
+                        </button>
                     </form>
-                    <button type="button" class="btn btn-warning" id="subject${relationship.ref}EditBtn">
-                        <i class="fa-solid fa-pen-to-square"></i> Editar módulo
-                    </button>
-                    <button type="button" class="btn btn-danger" id="subject${relationship.ref}DeleteBtn">
-                        <i class="fa-solid fa-trash"></i> Eliminar módulo
-                    </button>
                 </div>
             </div>
         </div>`;
 
         subjects.forEach(subject => {
-            let subjectNameHTML = document.createElement("option");
-            subjectNameHTML.value = subject.name;
-            subjectNameHTML.textContent = subject.name;
+            let subjectOptionHTML = document.createElement("option");
+            subjectOptionHTML.value = subject.name;
+            subjectOptionHTML.textContent = subject.name;
             if(subject.name === relationship.name){
-                subjectNameHTML.selected = true;
+                subjectOptionHTML.selected = true;
             }
-            subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectNameHTML);
+            subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectOptionHTML);
         });
 
         totalHours += relationship.hours;
@@ -294,6 +503,7 @@ function getRelationshipIndex(relationshipRef) {
     return currentRelationshipData.findIndex(relationship => relationship.ref === relationshipRef);
 }
 
+
 /**
  * Actualiza todos los módulos relacionados a un profesor/a
  * @param {number} teacherIndex Índice del profesor/a
@@ -309,8 +519,8 @@ function updateAllRelationshipData(teacherIndex, isDeleting = false) {
         let allRelationshipRefs = currentRelationshipData.map(relationship => relationship.ref);
         let relationshipRefCount = 0;
         Array.from(subjectContainerHTML.children).forEach(child => {
-            let childIdRef = child.id.match(/\d+/)[0];
-            child.outerHTML = child.outerHTML.replace(new RegExp(childIdRef, "g"), allRelationshipRefs[relationshipRefCount].toString());
+            let childIdRef = child.id.match(/subject\d+/)[0];
+            child.outerHTML = child.outerHTML.replace(new RegExp(childIdRef, "g"), "subject" + allRelationshipRefs[relationshipRefCount].toString());
             relationshipRefCount++;
         });
     }
@@ -348,6 +558,28 @@ function getAllRelationshipData(teacherIndex) {
 
 
 /**
+ * Consigue todos los elementos HTML de un módulo relacionado
+ * @param {number} relationshipRef Referencia numérica del módulo relacionado
+ * @return {object} Objeto con todos elementos HTML del módulo relacionado
+ */
+function getRelationshipFields(relationshipRef) {
+    return {
+        titleHTML: document.getElementById(`subject${relationshipRef}Title`),
+        nameHTML: document.getElementById(`subject${relationshipRef}Name`),
+        shiftTimeHTML: document.getElementById(`subject${relationshipRef}ShiftTime`),
+        gradeHTML: document.getElementById(`subject${relationshipRef}Grade`),
+        courseNameHTML: document.getElementById(`subject${relationshipRef}CourseName`),
+        classroomHTML: document.getElementById(`subject${relationshipRef}Classroom`),
+        hoursHTML: document.getElementById(`subject${relationshipRef}Hours`),
+        distributionHTML: document.getElementById(`subject${relationshipRef}Distribution`),
+        commentsHTML: document.getElementById(`subject${relationshipRef}Comments`),
+        editBtnHTML: document.getElementById(`subject${relationshipRef}EditBtn`),
+        deleteBtnHTML: document.getElementById(`subject${relationshipRef}DeleteBtn`)
+    }
+}
+
+
+/**
  * Obtiene la referencia númerica de un módulo relacionado al profesor/a a partir de un evento
  * @param event El evento con el que se obtiene la referencia numérica
  * @return {number|null} Devuelve la referencia numérica si el evento contiene un ID; devuelve "null" en el caso contrario
@@ -355,6 +587,28 @@ function getAllRelationshipData(teacherIndex) {
 function getRelationshipRefFromEvent(event) {
     let match = event.target.id.match(/\d+/);
     return match ? Number(match[0]) : null;
+}
+
+
+/**
+ * Elimina el botón de "Añadir módulo":
+ */
+function deleteAddSubjectBtn() {
+    document.querySelector("#addSubjectBtn").remove();
+}
+
+
+/**
+ * Crea un botón de "Añadir módulo"
+ */
+function createAddSubjectBtn() {
+    let addSubjectBtnHTML = document.createElement("button");
+    addSubjectBtnHTML.type = "button";
+    addSubjectBtnHTML.id = "addSubjectBtn";
+    addSubjectBtnHTML.name = "addSubjectBtn";
+    addSubjectBtnHTML.classList.add("btn", "btn-success");
+    addSubjectBtnHTML.innerHTML = "<i class='fa-solid fa-plus text-white'></i> Añadir módulo";
+    optionContainer.appendChild(addSubjectBtnHTML);
 }
 
 
