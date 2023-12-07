@@ -10,10 +10,10 @@ let teachers = [
 
 
 /**
-* Devuelve un objeto con los datos de un profesor/a
-* @param {number} index Índice del profesor/a
-* @return {object} Objeto con los datos de dicho profesor/a
-*/
+ * Devuelve un objeto con los datos de un profesor/a
+ * @param {number} index Índice del profesor/a
+ * @return {object} Objeto con los datos de dicho profesor/a
+ */
 function getTeacherData(index) {
     return teachers[index];
 }

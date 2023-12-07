@@ -21,7 +21,7 @@ let totalHoursHTML = document.getElementById("totalHours"); // Horas totales de 
 
 // ================== ESTADO INICIAL ===================
 showTeacherData(TEACHER_INDEX);
-showAllRelationshipData(TEACHER_INDEX);
+showAllRelationshipData();
 createAddSubjectBtn();
 
 
@@ -40,7 +40,7 @@ subjectContainerHTML.addEventListener("click", function (event) {
     if (event.target.classList.contains("btn-danger")
         && event.target.textContent.includes("Eliminar módulo")) {
 
-        deleteRelationshipData(relationshipRef);
+        removeRelationshipData(relationshipRef);
     }
     else if (event.target.classList.contains("btn-danger")
         && event.target.textContent.includes("Cancelar cambios")) {
@@ -86,13 +86,9 @@ function saveEditRelationshipData(relationshipRef) {
 
     let originalRelationshipData = getRelationshipData(getRelationshipIndex(relationshipRef));
     let originalSubjectIndex = getSubjectIndex(originalRelationshipData.name); // index de modulo original
-    console.log("Original subject index: " + originalSubjectIndex);
-    let originalTeacherSubjectIndex = getTeacherSubjectIndex(TEACHER_INDEX, originalSubjectIndex);
-    // PROBLEMA: ¿como distinguir el indice de "relationship" con el de "teacherSubject"?
-    console.log("Original teacher-subject index: " + originalTeacherSubjectIndex);
+    deleteRelationshipData(originalSubjectIndex);
 
-    let newSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value);
-    console.log("New subject index: " + newSubjectIndex);
+    let newSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value); // index del modulo nuevo
 
     specificSubjectFields.titleHTML.textContent = specificSubjectFields.nameHTML.value;
     specificSubjectFields.nameHTML.disabled = true;
@@ -105,7 +101,7 @@ function saveEditRelationshipData(relationshipRef) {
     specificSubjectFields.editBtnHTML.innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Editar módulo";
     specificSubjectFields.deleteBtnHTML.innerHTML = "<i class='fa-solid fa-trash'></i> Eliminar módulo";
 
-    setTeacherSubjectData(originalTeacherSubjectIndex, TEACHER_INDEX, newSubjectIndex,
+    setRelationshipData(newSubjectIndex, TEACHER_INDEX,
         specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
 
     updateAllRelationshipData(TEACHER_INDEX);
@@ -142,6 +138,7 @@ function cancelEditRelationshipData(relationshipRef) {
     specificSubjectFields.deleteBtnHTML.innerHTML = "<i class='fa-solid fa-trash'></i> Eliminar módulo";
 }
 
+
 /**
  * Deja editar un módulo relacionado a un profesor/a
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
@@ -164,22 +161,21 @@ function editRelationshipData(relationshipRef) {
 
 
 /**
- * Borra un módulo relacionado a un profesor/a
+ * Quita un módulo relacionado a un profesor/a
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
  * @return {void}
  */
-function deleteRelationshipData(relationshipRef){
+function removeRelationshipData(relationshipRef){
     let specificSubjectContainerHTML = document.getElementById(`subject${relationshipRef}Container`);
 
     let specificSubjectFields = getRelationshipFields(relationshipRef);
     let specificSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value);
-    let specificTeacherSubjectIndex = getTeacherSubjectIndex(TEACHER_INDEX, specificSubjectIndex);
 
     totalHoursHTML.textContent = (Number(totalHoursHTML.textContent) - Number(specificSubjectFields.hoursHTML.value)).toString();
 
     specificSubjectContainerHTML.remove();
 
-    deleteTeacherSubjectData(specificTeacherSubjectIndex);
+    deleteRelationshipData(specificSubjectIndex);
     updateAllRelationshipData(TEACHER_INDEX, true);
 }
 
@@ -266,7 +262,8 @@ function saveAddRelationshipData(relationshipRef) {
         subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
     });
 
-    addTeacherSubjectData(TEACHER_INDEX, getSubjectIndex(specificSubjectFields.nameHTML.value),
+
+    setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
         specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
     updateAllRelationshipData(TEACHER_INDEX);
 
@@ -366,6 +363,114 @@ function createAddRelationshipDataForm() {
 
 
 /**
+ * Actualiza todos los módulos relacionados a un profesor/a
+ * @param {number} teacherIndex Índice del profesor/a
+ * @param {boolean} isDeleting Indica si se está actualizando por borrar módulos relacionados o no.
+ * En caso afirmativo, poner "true" (sin comillas)
+ * @return {void}
+ */
+function updateAllRelationshipData(teacherIndex, isDeleting = false) {
+    currentRelationshipData = getAllRelationshipData(teacherIndex);
+
+    if(isDeleting){
+        subjectContainerHTML.innerHTML = "";
+        showAllRelationshipData();
+    }
+}
+
+
+/**
+ * Consigue un módulo relacionado a un profesor/a
+ * @param {number} relationshipIndex Índice del módulo relacionado
+ * @return {object} Objeto del módulo relacionado
+ * */
+function getRelationshipData(relationshipIndex) {
+    return currentRelationshipData[relationshipIndex];
+}
+
+
+/**
+ * Devuelve el índice de un módulo relacionado a un profesor/a
+ * @param {number} relationshipRef Referencia numérica del módulo relacionado
+ * @return {number} Índice del módulo relacionado
+ * */
+function getRelationshipIndex(relationshipRef) {
+    return currentRelationshipData.findIndex(relationship => relationship.ref === relationshipRef);
+}
+
+
+/**
+ * Devuelve un arreglo de objetos con todos los datos de módulos relacionados al profesor/a
+ * más una referencia numérica
+ * @param {number} teacherIndex Índice del profesor/a
+ * @return {object[]} Arreglo de objetos con datos relacionales
+ */
+function getAllRelationshipData(teacherIndex) {
+    let count = 1;
+    let filteredData = subjects.filter(subject => subject.teacherIndex === teacherIndex);
+    return filteredData.map(relationship => {
+        const {teacherIndex, ...rest} = relationship;
+        return {...rest, ref: count++};
+    });
+}
+
+
+/**
+ * Obtiene la referencia númerica de un módulo relacionado al profesor/a a partir de un evento
+ * @param event El evento con el que se obtiene la referencia numérica
+ * @return {number|null} Devuelve la referencia numérica si el evento contiene un ID; devuelve "null" en el caso contrario
+ */
+function getRelationshipRefFromEvent(event) {
+    let match = event.target.id.match(/\d+/);
+    return match ? Number(match[0]) : null;
+}
+
+
+/**
+ * Consigue todos los elementos HTML de un módulo relacionado
+ * @param {number} relationshipRef Referencia numérica del módulo relacionado
+ * @return {object} Objeto con todos elementos HTML del módulo relacionado
+ */
+function getRelationshipFields(relationshipRef) {
+    return {
+        titleHTML: document.getElementById(`subject${relationshipRef}Title`),
+        nameHTML: document.getElementById(`subject${relationshipRef}Name`),
+        shiftTimeHTML: document.getElementById(`subject${relationshipRef}ShiftTime`),
+        gradeHTML: document.getElementById(`subject${relationshipRef}Grade`),
+        courseNameHTML: document.getElementById(`subject${relationshipRef}CourseName`),
+        classroomHTML: document.getElementById(`subject${relationshipRef}Classroom`),
+        hoursHTML: document.getElementById(`subject${relationshipRef}Hours`),
+        distributionHTML: document.getElementById(`subject${relationshipRef}Distribution`),
+        commentsHTML: document.getElementById(`subject${relationshipRef}Comments`),
+        editBtnHTML: document.getElementById(`subject${relationshipRef}EditBtn`),
+        deleteBtnHTML: document.getElementById(`subject${relationshipRef}DeleteBtn`)
+    }
+}
+
+
+/**
+ * Elimina el botón de "Añadir módulo":
+ */
+function deleteAddSubjectBtn() {
+    document.querySelector("#addSubjectBtn").remove();
+}
+
+
+/**
+ * Crea un botón de "Añadir módulo"
+ */
+function createAddSubjectBtn() {
+    let addSubjectBtnHTML = document.createElement("button");
+    addSubjectBtnHTML.type = "button";
+    addSubjectBtnHTML.id = "addSubjectBtn";
+    addSubjectBtnHTML.name = "addSubjectBtn";
+    addSubjectBtnHTML.classList.add("btn", "btn-success");
+    addSubjectBtnHTML.innerHTML = "<i class='fa-solid fa-plus text-white'></i> Añadir módulo";
+    optionContainer.appendChild(addSubjectBtnHTML);
+}
+
+
+/**
  * Cambia los datos de un módulo relacionado de acuerdo al valor actual del campo "Módulo"
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
  * @return {void}
@@ -397,10 +502,9 @@ function toggleRelationshipData(relationshipRef) {
 
 /**
  * Muestra todos los módulos relacionados a un profesor/a
- * @param {number} teacherIndex Índice del profesor/a
  * @return {void}
  */
-function showAllRelationshipData(teacherIndex) {
+function showAllRelationshipData() {
     let totalHours = 0;
     currentRelationshipData.forEach(relationship => {
         subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationship.ref}Container">
@@ -481,134 +585,6 @@ function showAllRelationshipData(teacherIndex) {
     });
 
     totalHoursHTML.textContent = totalHours;
-}
-
-
-/**
- * Consigue un módulo relacionado a un profesor/a
- * @param {number} relationshipIndex Índice del módulo relacionado
- * @return {object} Objeto del módulo relacionado
- * */
-function getRelationshipData(relationshipIndex) {
-    return currentRelationshipData[relationshipIndex];
-}
-
-
-/**
- * Devuelve el índice de un módulo relacionado a un profesor/a
- * @param {number} relationshipRef Referencia numérica del módulo relacionado
- * @return {object} Índice del módulo relacionado
- * */
-function getRelationshipIndex(relationshipRef) {
-    return currentRelationshipData.findIndex(relationship => relationship.ref === relationshipRef);
-}
-
-
-/**
- * Actualiza todos los módulos relacionados a un profesor/a
- * @param {number} teacherIndex Índice del profesor/a
- * @param {boolean} isDeleting Indica si se está actualizando por borrar módulos relacionados o no.
- * En caso afirmativo, poner "true" (sin comillas)
- * @return {void}
- */
-function updateAllRelationshipData(teacherIndex, isDeleting = false) {
-    currentRelationshipData = getAllRelationshipData(teacherIndex);
-
-    if(isDeleting){
-        // Actualizamos las referencias de los contenedores para los módulos relacionados:
-        let allRelationshipRefs = currentRelationshipData.map(relationship => relationship.ref);
-        let relationshipRefCount = 0;
-        Array.from(subjectContainerHTML.children).forEach(child => {
-            let childIdRef = child.id.match(/subject\d+/)[0];
-            child.outerHTML = child.outerHTML.replace(new RegExp(childIdRef, "g"), "subject" + allRelationshipRefs[relationshipRefCount].toString());
-            relationshipRefCount++;
-        });
-    }
-}
-
-
-/**
- * Consigue todos los módulos relacionados a un profesor/a
- * @param {number} teacherIndex Índice del profesor/a
- * @return {object[]} Arreglo de objetos con los módulos relacionados
- */
-function getAllRelationshipData(teacherIndex) {
-    let data = [];
-    let allRelationshipData = getAllTeacherSubjectData(teacherIndex);
-
-    let relationshipCount = 1;
-    allRelationshipData.forEach(relationship => {
-        let dataItem = {};
-        let subjectData = getSubjectData(relationship.subjectIndex);
-        dataItem.ref = relationshipCount;
-        dataItem.name = subjectData.name;
-        dataItem.shiftTime = subjectData.shiftTime;
-        dataItem.grade = subjectData.grade;
-        dataItem.courseName = subjectData.courseName;
-        dataItem.classroom = subjectData.classroom;
-        dataItem.hours = subjectData.hours;
-        dataItem.distribution = relationship.distribution;
-        dataItem.comments = relationship.comments;
-        data.push(dataItem);
-        relationshipCount++;
-    });
-
-    return data;
-}
-
-
-/**
- * Consigue todos los elementos HTML de un módulo relacionado
- * @param {number} relationshipRef Referencia numérica del módulo relacionado
- * @return {object} Objeto con todos elementos HTML del módulo relacionado
- */
-function getRelationshipFields(relationshipRef) {
-    return {
-        titleHTML: document.getElementById(`subject${relationshipRef}Title`),
-        nameHTML: document.getElementById(`subject${relationshipRef}Name`),
-        shiftTimeHTML: document.getElementById(`subject${relationshipRef}ShiftTime`),
-        gradeHTML: document.getElementById(`subject${relationshipRef}Grade`),
-        courseNameHTML: document.getElementById(`subject${relationshipRef}CourseName`),
-        classroomHTML: document.getElementById(`subject${relationshipRef}Classroom`),
-        hoursHTML: document.getElementById(`subject${relationshipRef}Hours`),
-        distributionHTML: document.getElementById(`subject${relationshipRef}Distribution`),
-        commentsHTML: document.getElementById(`subject${relationshipRef}Comments`),
-        editBtnHTML: document.getElementById(`subject${relationshipRef}EditBtn`),
-        deleteBtnHTML: document.getElementById(`subject${relationshipRef}DeleteBtn`)
-    }
-}
-
-
-/**
- * Obtiene la referencia númerica de un módulo relacionado al profesor/a a partir de un evento
- * @param event El evento con el que se obtiene la referencia numérica
- * @return {number|null} Devuelve la referencia numérica si el evento contiene un ID; devuelve "null" en el caso contrario
- */
-function getRelationshipRefFromEvent(event) {
-    let match = event.target.id.match(/\d+/);
-    return match ? Number(match[0]) : null;
-}
-
-
-/**
- * Elimina el botón de "Añadir módulo":
- */
-function deleteAddSubjectBtn() {
-    document.querySelector("#addSubjectBtn").remove();
-}
-
-
-/**
- * Crea un botón de "Añadir módulo"
- */
-function createAddSubjectBtn() {
-    let addSubjectBtnHTML = document.createElement("button");
-    addSubjectBtnHTML.type = "button";
-    addSubjectBtnHTML.id = "addSubjectBtn";
-    addSubjectBtnHTML.name = "addSubjectBtn";
-    addSubjectBtnHTML.classList.add("btn", "btn-success");
-    addSubjectBtnHTML.innerHTML = "<i class='fa-solid fa-plus text-white'></i> Añadir módulo";
-    optionContainer.appendChild(addSubjectBtnHTML);
 }
 
 
