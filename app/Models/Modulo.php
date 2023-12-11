@@ -13,7 +13,9 @@ class Modulo extends Model
 
     protected $fillable = [
         'name',
-        'especialidad_id'
+        'especialidad_id',
+        'curso_id',
+        'user_id'
     ];
 
     public function especialidad()
