@@ -1,6 +1,9 @@
 // ================== CONSTANTES ===================
 const TEACHER_INDEX = getTeacherIndex("Daniel", "Rodríguez Ravelo"); // Índice del profesor/a
+const TEACHER_SPECIALTY_INDEX = getTeacherData(TEACHER_INDEX).specialtyIndex;
+const TEACHER_DEPARTMENT_INDEX = getTeacherData(TEACHER_INDEX).departmentIndex;
 const TOTAL_HOURS_LIMIT = 18; // Límite de horas totales a intentar no superar por parte del profesor/a
+const TOTAL_HOURS_LIMIT_WARNING = "LÍMITE DE 18 HORAS SEMANALES SUPERADO. POR FAVOR, EDITE O ELIMINE ALGÚN MÓDULO";
 
 // ================== VARIABLES ===================
 let currentRelationshipData = getAllRelationshipData(TEACHER_INDEX); // Arreglo de objectos de los módulos relacionados
@@ -17,6 +20,7 @@ let subjectContainerHTML = document.getElementById("subjectContainer"); // Conte
 let optionContainer = document.getElementById("optionContainer"); // Contenedor para las opciones del formulario
 let addSubjectContainerHTML = document.getElementById("addSubjectContainer"); // Contenedor para añadir módulos
 let totalHoursHTML = document.getElementById("totalHours"); // Horas totales de todos los módulos
+let hoursWarningHTML = document.getElementById("hoursWarning"); // Aviso de horas superadas
 
 
 // ================== ESTADO INICIAL ===================
@@ -119,9 +123,9 @@ function cancelEditRelationshipData(relationshipRef) {
     let originalRelationshipData = getRelationshipData(getRelationshipIndex(relationshipRef));
 
     specificSubjectFields.nameHTML.value = originalRelationshipData.name;
-    specificSubjectFields.shiftTimeHTML.value = originalRelationshipData.shiftTime;
-    specificSubjectFields.gradeHTML.value = originalRelationshipData.grade;
-    specificSubjectFields.courseNameHTML.value = originalRelationshipData.courseName;
+    specificSubjectFields.shiftTimeHTML.value = originalRelationshipData.course.shiftTime;
+    specificSubjectFields.gradeHTML.value = originalRelationshipData.course.grade;
+    specificSubjectFields.courseNameHTML.value = originalRelationshipData.course.name;
     specificSubjectFields.classroomHTML.value = originalRelationshipData.classroom;
     specificSubjectFields.hoursHTML.value = originalRelationshipData.hours;
     specificSubjectFields.distributionHTML.value = originalRelationshipData.distribution;
@@ -171,8 +175,6 @@ function removeRelationshipData(relationshipRef){
     let specificSubjectFields = getRelationshipFields(relationshipRef);
     let specificSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value);
 
-    totalHoursHTML.textContent = (Number(totalHoursHTML.textContent) - Number(specificSubjectFields.hoursHTML.value)).toString();
-
     specificSubjectContainerHTML.remove();
 
     deleteRelationshipData(specificSubjectIndex);
@@ -186,6 +188,7 @@ function removeRelationshipData(relationshipRef){
  * @return {void}
  */
 function saveAddRelationshipData(relationshipRef) {
+    // TODO - FUNCIÓN DEFECTUOSA: el nombre no se selecciona cuando se añade el módulo. Averiguar por qué
     let specificSubjectFields = getRelationshipFields(relationshipRef);
 
     subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationshipRef}Container">
@@ -252,28 +255,30 @@ function saveAddRelationshipData(relationshipRef) {
         </div>
     </div>`;
 
-    subjects.forEach(subject => {
-        let subjectOptionHTML = document.createElement("option");
-        subjectOptionHTML.value = subject.name;
-        subjectOptionHTML.textContent = subject.name;
-        if(subject.name === specificSubjectFields.nameHTML.value){
-            subjectOptionHTML.selected = true;
-        }
-        subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
-    });
+
+    setTimeout(() => {
+        subjects.forEach(subject => {
+            if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
+                let subjectOptionHTML = document.createElement("option");
+                subjectOptionHTML.value = subject.name;
+                subjectOptionHTML.textContent = subject.name;
+                if(subject.name === specificSubjectFields.nameHTML.value){
+                    subjectOptionHTML.selected = true;
+                }
+                subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+            }
+        });
+    }, 100);
 
 
     setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
         specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
-    updateAllRelationshipData(TEACHER_INDEX);
-
-    totalHoursHTML.textContent = (Number(totalHoursHTML.textContent) + Number(specificSubjectFields.hoursHTML.value)).toString();
+    updateAllRelationshipData(TEACHER_INDEX, true);
 
     specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
     delete specificSubjectFields.nameHTML.customToggleRelationShipDataRef;
 
     addSubjectContainerHTML.innerHTML = "";
-    createAddSubjectBtn();
 }
 
 
@@ -292,7 +297,10 @@ function cancelAddRelationshipData(){
  * @return {void}
  */
 function createAddRelationshipDataForm() {
-    deleteAddSubjectBtn();
+    if(document.querySelector("#addSubjectBtn")){
+        deleteAddSubjectBtn();
+    }
+
     let relationshipRef = currentRelationshipData.length + 1;
     addSubjectContainerHTML.innerHTML += `
         <form class="mb-3" id="addSubjectForm">
@@ -348,13 +356,22 @@ function createAddRelationshipDataForm() {
             </button>
         </form>`;
 
-    subjects.forEach(subject => {
+
+    // Filtrar las opciones a la hora de añadir un módulo:
+    let filteredSubjects = subjects.filter(subject => subject.specialtyIndex === TEACHER_SPECIALTY_INDEX);
+    let subjectNames = filteredSubjects.map(subject => subject.name);
+    let relationshipNames = currentRelationshipData.map(relationship => relationship.name);
+    let relationshipNamesSet = new Set(relationshipNames);
+    let filteredSubjectNames = subjectNames.filter(name => !relationshipNamesSet.has(name));
+
+    filteredSubjectNames.forEach(name => {
         let subjectOptionHTML = document.createElement("option");
-        subjectOptionHTML.value = subject.name;
-        subjectOptionHTML.textContent = subject.name;
+        subjectOptionHTML.value = name;
+        subjectOptionHTML.textContent = name;
         addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
     });
 
+    // Hacer que el autocompletado cuando se elija un módulo sea efectivo:
     let subjectNameHTML = addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`);
     let toggleRelationshipDataRef = () => toggleRelationshipData(relationshipRef);
     subjectNameHTML.addEventListener("change", toggleRelationshipDataRef);
@@ -365,14 +382,33 @@ function createAddRelationshipDataForm() {
 /**
  * Actualiza todos los módulos relacionados a un profesor/a
  * @param {number} teacherIndex Índice del profesor/a
- * @param {boolean} isDeleting Indica si se está actualizando por borrar módulos relacionados o no.
+ * @param {boolean} isDeletingOrAdding Indica si se está actualizando por borrar o añadir módulos relacionados o no.
  * En caso afirmativo, poner "true" (sin comillas)
  * @return {void}
  */
-function updateAllRelationshipData(teacherIndex, isDeleting = false) {
+function updateAllRelationshipData(teacherIndex, isDeletingOrAdding = false) {
     currentRelationshipData = getAllRelationshipData(teacherIndex);
 
-    if(isDeleting){
+    let totalHours = currentRelationshipData.reduce((accumulator, relationship) => {
+        return accumulator + relationship.hours;
+    }, 0);
+
+    totalHoursHTML.className = "";
+    totalHoursHTML.textContent = totalHours;
+    hoursWarningHTML.className = "";
+    hoursWarningHTML.textContent = "";
+
+    if (totalHours > TOTAL_HOURS_LIMIT) {
+        totalHoursHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.textContent = TOTAL_HOURS_LIMIT_WARNING;
+    }
+
+    if(totalHours < TOTAL_HOURS_LIMIT && !document.querySelector("#addSubjectBtn")){
+        createAddSubjectBtn();
+    }
+
+    if(isDeletingOrAdding){
         subjectContainerHTML.innerHTML = "";
         showAllRelationshipData();
     }
@@ -409,8 +445,22 @@ function getAllRelationshipData(teacherIndex) {
     let count = 1;
     let filteredData = subjects.filter(subject => subject.teacherIndex === teacherIndex);
     return filteredData.map(relationship => {
-        const {teacherIndex, ...rest} = relationship;
-        return {...rest, ref: count++};
+        const {courseIndex, specialtyIndex, teacherIndex, ...rest} = relationship;
+        let courseData = getCourseData(courseIndex);
+        return {
+            ...rest,
+            ref: count++,
+            course: {
+                index: courseIndex,
+                name: courseData.name,
+                grade: courseData.grade,
+                shiftTime: courseData.shiftTime
+            },
+            specialty: {
+                index: specialtyIndex,
+                name: getSpecialtyData(specialtyIndex).name
+            }
+        };
     });
 }
 
@@ -449,7 +499,8 @@ function getRelationshipFields(relationshipRef) {
 
 
 /**
- * Elimina el botón de "Añadir módulo":
+ * Elimina el botón de "Añadir módulo"
+ * @return {void}
  */
 function deleteAddSubjectBtn() {
     document.querySelector("#addSubjectBtn").remove();
@@ -458,6 +509,7 @@ function deleteAddSubjectBtn() {
 
 /**
  * Crea un botón de "Añadir módulo"
+ * @return {void}
  */
 function createAddSubjectBtn() {
     let addSubjectBtnHTML = document.createElement("button");
@@ -489,11 +541,12 @@ function toggleRelationshipData(relationshipRef) {
     }
     else {
         let newSubjectData = getSubjectData(getSubjectIndex(specificSubjectFields.nameHTML.value));
+        let newCourseData = getCourseData(newSubjectData.courseIndex);
 
         specificSubjectFields.nameHTML.value = newSubjectData.name;
-        specificSubjectFields.shiftTimeHTML.value = newSubjectData.shiftTime;
-        specificSubjectFields.gradeHTML.value = newSubjectData.grade;
-        specificSubjectFields.courseNameHTML.value = newSubjectData.courseName;
+        specificSubjectFields.shiftTimeHTML.value = newCourseData.shiftTime;
+        specificSubjectFields.gradeHTML.value = newCourseData.grade;
+        specificSubjectFields.courseNameHTML.value = newCourseData.name;
         specificSubjectFields.classroomHTML.value = newSubjectData.classroom;
         specificSubjectFields.hoursHTML.value = newSubjectData.hours;
     }
@@ -528,17 +581,17 @@ function showAllRelationshipData() {
                         <div class="mb-3">
                             <label for="subject${relationship.ref}ShiftTime" class="form-label">Turno</label>
                             <input type="text" class="form-control" id="subject${relationship.ref}ShiftTime" 
-                            name="subject${relationship.ref}ShiftTime" value="${relationship.shiftTime}" disabled>
+                            name="subject${relationship.ref}ShiftTime" value="${relationship.course.shiftTime}" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="subject${relationship.ref}Grade" class="form-label">Grado</label>
                             <input type="text" class="form-control" id="subject${relationship.ref}Grade" 
-                            name="subject${relationship.ref}Grade" value="${relationship.grade}" disabled>
+                            name="subject${relationship.ref}Grade" value="${relationship.course.grade}" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="subject${relationship.ref}CourseName" class="form-label">Ciclo</label>
                             <input type="text" class="form-control" id="subject${relationship.ref}CourseName" 
-                            name="subject${relationship.ref}CourseName" value="${relationship.courseName}" disabled>
+                            name="subject${relationship.ref}CourseName" value="${relationship.course.name}" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="subject${relationship.ref}Classroom" class="form-label">Aula</label>
@@ -572,13 +625,15 @@ function showAllRelationshipData() {
         </div>`;
 
         subjects.forEach(subject => {
-            let subjectOptionHTML = document.createElement("option");
-            subjectOptionHTML.value = subject.name;
-            subjectOptionHTML.textContent = subject.name;
-            if(subject.name === relationship.name){
-                subjectOptionHTML.selected = true;
+            if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
+                let subjectOptionHTML = document.createElement("option");
+                subjectOptionHTML.value = subject.name;
+                subjectOptionHTML.textContent = subject.name;
+                if(subject.name === relationship.name){
+                    subjectOptionHTML.selected = true;
+                }
+                subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectOptionHTML);
             }
-            subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectOptionHTML);
         });
 
         totalHours += relationship.hours;
@@ -598,8 +653,8 @@ function showTeacherData(teacherIndex) {
 
     firstNameHTML.value = data.firstName;
     lastNameHTML.value = data.lastName;
-    departmentHTML.value = data.department;
-    specialtyHTML.value = data.specialty;
+    departmentHTML.value = getDepartmentData(TEACHER_DEPARTMENT_INDEX).name;
+    specialtyHTML.value = getSpecialtyData(TEACHER_SPECIALTY_INDEX).name;
 
     let currentDate = new Date();
     let currentYear = currentDate.getFullYear();

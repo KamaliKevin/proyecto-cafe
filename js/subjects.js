@@ -1,36 +1,33 @@
 let subjects = [
     {
-        name: "Desarrollo web en entorno cliente",
-        shiftTime: "Tarde",
-        grade: "2º",
-        courseName: "Grado Superior de Desarrollo de Aplicaciones Web",
-        classroom: "21",
-        hours: 7,
-        teacherIndex: 0,
-        distribution: "3+2+2",
-        comments: "- Evitar días partidos, teniendo días de mañana o de tarde<br>- No trabajar el viernes tarde"
-    },
-    {
-        name: "Lenguaje de marcas y gestión de la información",
-        shiftTime: "Tarde",
-        grade: "1º",
-        courseName: "Grado Superior de Desarrollo de Aplicaciones Web",
+        name: "Lenguajes de marcas y gestión de la información",
+        courseIndex: 0,
         classroom: "19",
         hours: 6,
+        specialtyIndex: 0,
         teacherIndex: 0,
         distribution: "2+2+2",
         comments: ""
     },
     {
         name: "Programación",
-        shiftTime: "Tarde",
-        grade: "1º",
-        courseName: "Grado Superior de Desarrollo de Aplicaciones Web",
+        courseIndex: 0,
         classroom: "19",
         hours: 8,
+        specialtyIndex: 0,
         teacherIndex: null,
         distribution: "",
         comments: ""
+    },
+    {
+        name: "Desarrollo web en entorno cliente",
+        courseIndex: 1,
+        classroom: "21",
+        hours: 7,
+        specialtyIndex: 0,
+        teacherIndex: 0,
+        distribution: "3+2+2",
+        comments: "- Evitar días partidos, teniendo días de mañana o de tarde<br>- No trabajar el viernes tarde"
     }
     // NOTA: Se pueden añadir más módulos de ejemplo si se quiere...
 ];

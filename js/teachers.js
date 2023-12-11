@@ -2,8 +2,8 @@ let teachers = [
     {
         firstName: "Daniel",
         lastName: "Rodríguez Ravelo",
-        department: "Informática y comunicaciones",
-        specialty: "Sistemas y aplicaciones informáticas"
+        departmentIndex: 0,
+        specialtyIndex: 0
     }
     // NOTA: Se pueden añadir más profesores de ejemplo si se quiere...
 ];
