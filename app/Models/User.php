@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Modulo;
+use App\Models\Especialidad;
+use App\Models\Departamento;
 
 class User extends Authenticatable
 {
@@ -42,4 +45,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function modulos()
+    {
+        return $this->hasMany(Modulo::class);
+    }
+
+    public function especialidad()
+    {
+        return $this->hasOne(Especialidad::class);
+    }
+    public function departamento()
+    {
+        return $this->belongsTo(Departamento::class);
+    }
 }
