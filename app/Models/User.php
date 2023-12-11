@@ -24,6 +24,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'especialidad_id',
+        'departamento_id',
+        'observations'
     ];
 
     /**
@@ -52,7 +55,7 @@ class User extends Authenticatable
 
     public function especialidad()
     {
-        return $this->hasOne(Especialidad::class);
+        return $this->belongsTo(Especialidad::class);
     }
     public function departamento()
     {
