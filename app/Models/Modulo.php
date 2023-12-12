@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Especialidad;
 use App\Models\Curso;
 use App\Models\User;
+use App\Models\Aula;
 class Modulo extends Model
 {
     use HasFactory;
@@ -15,6 +16,7 @@ class Modulo extends Model
         'name',
         'especialidad_id',
         'curso_id',
+        'aula_id',
         'user_id'
     ];
 
@@ -30,5 +32,9 @@ class Modulo extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function aulas()
+    {
+        return $this->belongsToMany(Aula::class);
     }
 }
