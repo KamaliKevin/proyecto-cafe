@@ -4,20 +4,21 @@ const TEACHER_SPECIALTY_INDEX = getTeacherData(TEACHER_INDEX).specialtyIndex;
 const TEACHER_DEPARTMENT_INDEX = getTeacherData(TEACHER_INDEX).departmentIndex;
 const TOTAL_HOURS_LIMIT = 18; // Límite de horas totales a intentar no superar por parte del profesor/a
 const TOTAL_HOURS_LIMIT_WARNING = "LÍMITE DE 18 HORAS SEMANALES SUPERADO. POR FAVOR, EDITE O ELIMINE ALGÚN MÓDULO";
+const DEFAULT_SUBJECT_OPTION = "-- Elija un módulo --";
 
 // ================== VARIABLES ===================
 let currentRelationshipData = getAllRelationshipData(TEACHER_INDEX); // Arreglo de objectos de los módulos relacionados
 
 
 // ================== REFERENCIAS HTML ===================
-let formContentHTML = document.getElementById("formContent"); // Contenedor del formulario
+let formContentHTML = document.getElementById("formContent"); // Contenedor del formulario de horarios
 let firstNameHTML = document.getElementById("firstName");
 let lastNameHTML = document.getElementById("lastName");
 let departmentHTML = document.getElementById("department");
 let specialtyHTML = document.getElementById("specialty");
 let schoolYearHTML = document.getElementById("schoolYear");
-let subjectContainerHTML = document.getElementById("subjectContainer"); // Contenedor para los acordeones de materias
-let optionContainer = document.getElementById("optionContainer"); // Contenedor para las opciones del formulario
+let subjectContainerHTML = document.getElementById("subjectContainer"); // Contenedor para los acordeones de módulos
+let optionContainer = document.getElementById("optionContainer"); // Contenedor para las opciones del formulario de horarios
 let addSubjectContainerHTML = document.getElementById("addSubjectContainer"); // Contenedor para añadir módulos
 let totalHoursHTML = document.getElementById("totalHours"); // Horas totales de todos los módulos
 let hoursWarningHTML = document.getElementById("hoursWarning"); // Aviso de horas superadas
@@ -191,94 +192,95 @@ function saveAddRelationshipData(relationshipRef) {
     // TODO - FUNCIÓN DEFECTUOSA: el nombre no se selecciona cuando se añade el módulo. Averiguar por qué
     let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-    subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationshipRef}Container">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#subject${relationshipRef}Data" aria-expanded="false" 
-                    aria-controls="subject${relationshipRef}Data" id="subject${relationshipRef}Title">
-                ${specificSubjectFields.nameHTML.value}
-            </button>
-        </h2>
-        <div id="subject${relationshipRef}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
-            <div class="accordion-body">
-                <form id="subject${relationshipRef}Form">
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}Name" class="form-label">Módulo</label>
-                        <select class="form-select" id="subject${relationshipRef}Name" 
-                        name="subject${relationshipRef}Name" disabled>
-                            <!-- Aquí van todos los nombres de módulos -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
-                        <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
-                        name="subject${relationshipRef}ShiftTime" value="${specificSubjectFields.shiftTimeHTML.value}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}Grade" class="form-label">Grado</label>
-                        <input type="text" class="form-control" id="subject${relationshipRef}Grade" 
-                        name="subject${relationshipRef}Grade" value="${specificSubjectFields.gradeHTML.value}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}CourseName" class="form-label">Ciclo</label>
-                        <input type="text" class="form-control" id="subject${relationshipRef}CourseName" 
-                        name="subject${relationshipRef}CourseName" value="${specificSubjectFields.courseNameHTML.value}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}Classroom" class="form-label">Aula</label>
-                        <input type="text" class="form-control" id="subject${relationshipRef}Classroom" 
-                        name="subject${relationshipRef}Classroom" value="${specificSubjectFields.classroomHTML.value}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}Hours" class="form-label">Horas semanales</label>
-                        <input type="text" class="form-control" id="subject${relationshipRef}Hours" 
-                        name="subject${relationshipRef}Hours" value="${specificSubjectFields.hoursHTML.value}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
-                        <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
-                        name="subject${relationshipRef}Distribution" value="${specificSubjectFields.distributionHTML.value}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
-                        <textarea class="form-control" id="subject${relationshipRef}Comments" 
-                        name="subject${relationshipRef}Comments" rows="5" disabled>${specificSubjectFields.commentsHTML.value}</textarea>
-                    </div>
-                    <button type="button" class="btn btn-warning" id="subject${relationshipRef}EditBtn">
-                        <i class="fa-solid fa-pen-to-square"></i> Editar módulo
-                    </button>
-                    <button type="button" class="btn btn-danger" id="subject${relationshipRef}DeleteBtn">
-                        <i class="fa-solid fa-trash"></i> Eliminar módulo
-                    </button>
-                </form>
+    // Restringir guardar un módulo cuando los campos estén vacíos:
+    if(specificSubjectFields.nameHTML.value !== DEFAULT_SUBJECT_OPTION){
+        subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationshipRef}Container">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#subject${relationshipRef}Data" aria-expanded="false" 
+                        aria-controls="subject${relationshipRef}Data" id="subject${relationshipRef}Title">
+                    ${specificSubjectFields.nameHTML.value}
+                </button>
+            </h2>
+            <div id="subject${relationshipRef}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
+                <div class="accordion-body">
+                    <form id="subject${relationshipRef}Form">
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}Name" class="form-label">Módulo</label>
+                            <select class="form-select" id="subject${relationshipRef}Name" 
+                            name="subject${relationshipRef}Name" disabled>
+                                <!-- Aquí van todos los nombres de módulos -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
+                            <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
+                            name="subject${relationshipRef}ShiftTime" value="${specificSubjectFields.shiftTimeHTML.value}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}Grade" class="form-label">Grado</label>
+                            <input type="text" class="form-control" id="subject${relationshipRef}Grade" 
+                            name="subject${relationshipRef}Grade" value="${specificSubjectFields.gradeHTML.value}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}CourseName" class="form-label">Ciclo</label>
+                            <input type="text" class="form-control" id="subject${relationshipRef}CourseName" 
+                            name="subject${relationshipRef}CourseName" value="${specificSubjectFields.courseNameHTML.value}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}Classroom" class="form-label">Aula</label>
+                            <input type="text" class="form-control" id="subject${relationshipRef}Classroom" 
+                            name="subject${relationshipRef}Classroom" value="${specificSubjectFields.classroomHTML.value}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}Hours" class="form-label">Horas semanales</label>
+                            <input type="text" class="form-control" id="subject${relationshipRef}Hours" 
+                            name="subject${relationshipRef}Hours" value="${specificSubjectFields.hoursHTML.value}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
+                            <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
+                            name="subject${relationshipRef}Distribution" value="${specificSubjectFields.distributionHTML.value}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
+                            <textarea class="form-control" id="subject${relationshipRef}Comments" 
+                            name="subject${relationshipRef}Comments" rows="5" disabled>${specificSubjectFields.commentsHTML.value}</textarea>
+                        </div>
+                        <button type="button" class="btn btn-warning" id="subject${relationshipRef}EditBtn">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar módulo
+                        </button>
+                        <button type="button" class="btn btn-danger" id="subject${relationshipRef}DeleteBtn">
+                            <i class="fa-solid fa-trash"></i> Eliminar módulo
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </div>`;
+        </div>`;
 
-
-    setTimeout(() => {
-        subjects.forEach(subject => {
-            if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
-                let subjectOptionHTML = document.createElement("option");
-                subjectOptionHTML.value = subject.name;
-                subjectOptionHTML.textContent = subject.name;
-                if(subject.name === specificSubjectFields.nameHTML.value){
-                    subjectOptionHTML.selected = true;
+        setTimeout(() => {
+            subjects.forEach(subject => {
+                if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
+                    let subjectOptionHTML = document.createElement("option");
+                    subjectOptionHTML.value = subject.name;
+                    subjectOptionHTML.textContent = subject.name;
+                    if(subject.name === specificSubjectFields.nameHTML.value){
+                        subjectOptionHTML.selected = true;
+                    }
+                    subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
                 }
-                subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
-            }
-        });
-    }, 100);
+            });
+        }, 100);
 
+        setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
+            specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
+        updateAllRelationshipData(TEACHER_INDEX, true);
 
-    setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
-        specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
-    updateAllRelationshipData(TEACHER_INDEX, true);
+        specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
+        delete specificSubjectFields.nameHTML.customToggleRelationShipDataRef;
 
-    specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
-    delete specificSubjectFields.nameHTML.customToggleRelationShipDataRef;
-
-    addSubjectContainerHTML.innerHTML = "";
+        addSubjectContainerHTML.innerHTML = "";
+    }
 }
 
 
@@ -310,7 +312,7 @@ function createAddRelationshipDataForm() {
                 <select class="form-select" id="subject${relationshipRef}Name" 
                 name="subject${relationshipRef}Name">
                     <!-- Aquí van todos los nombres de módulos -->
-                    <option value="-- Elija un módulo --">-- Elija un módulo --</option>
+                    <option value="${DEFAULT_SUBJECT_OPTION}">${DEFAULT_SUBJECT_OPTION}</option>
                 </select>
             </div>
             <div class="mb-3">
@@ -531,9 +533,9 @@ function createAddSubjectBtn() {
 function toggleRelationshipData(relationshipRef) {
     let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-    if(specificSubjectFields.nameHTML.value === "-- Elija un módulo --"){
+    if(specificSubjectFields.nameHTML.value === DEFAULT_SUBJECT_OPTION){
 
-        specificSubjectFields.nameHTML.value = "";
+        specificSubjectFields.nameHTML.value = DEFAULT_SUBJECT_OPTION;
         specificSubjectFields.shiftTimeHTML.value = "";
         specificSubjectFields.gradeHTML.value = "";
         specificSubjectFields.courseNameHTML.value = "";
@@ -658,8 +660,18 @@ function showTeacherData(teacherIndex) {
     specialtyHTML.value = getSpecialtyData(TEACHER_SPECIALTY_INDEX).name;
 
     let currentDate = new Date();
-    let currentYear = currentDate.getFullYear();
-    let nextYear = currentYear + 1;
+    let currentMonth = currentDate.getMonth() + 1;
 
-    schoolYearHTML.value = `${currentYear}-${nextYear}`;
+    if(currentMonth >= 9 && currentMonth <= 12){
+        let year1 = currentDate.getFullYear();
+        let year2 = year1 + 1;
+
+        schoolYearHTML.value = `${year1}-${year2}`;
+    }
+    else {
+        let year1 = currentDate.getFullYear() - 1;
+        let year2 = year1 + 1;
+
+        schoolYearHTML.value = `${year1}-${year2}`;
+    }
 }
