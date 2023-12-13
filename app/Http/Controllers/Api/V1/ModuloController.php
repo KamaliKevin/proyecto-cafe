@@ -31,6 +31,26 @@ class ModuloController extends Controller
         return response()->json($response, 200);
     }
 
+    public function indexTeacher($teachId)
+    {
+        $modulos = Modulo::where('user_id',$teachId)->with('especialidad')->with('curso')->with('user')->with('aulas')->get();
+
+        if (is_null($modulos->first())) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No product found!',
+            ], 200);
+        }
+
+        $response = [
+            'status' => 'success',
+            'message' => 'modulos are retrieved successfully.',
+            'data' => $modulos,
+        ];
+
+        return response()->json($response, 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */

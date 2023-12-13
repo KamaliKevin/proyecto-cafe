@@ -34,7 +34,7 @@ Route::controller(LoginRegisterController::class)->group(function() {
 Route::controller(ModuloController::class)->group(function() {
     Route::get('/modulos', 'index');
     Route::get('/modulos/{id}', 'show');
-    Route::get('/modulos/search/{name}', 'search');
+    Route::get('/modulos/profesor/{id}', 'indexTeacher');
 });
 
 // Protected routes of product and logout
