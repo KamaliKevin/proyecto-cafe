@@ -32,9 +32,9 @@ Route::controller(LoginRegisterController::class)->group(function() {
 
 // Public routes of product
 Route::controller(ModuloController::class)->group(function() {
-    // Route::get('/products', 'index');
-    // Route::get('/products/{id}', 'show');
-    // Route::get('/products/search/{name}', 'search');
+    Route::get('/modulos', 'index');
+    Route::get('/modulos/{id}', 'show');
+    Route::get('/modulos/search/{name}', 'search');
 });
 
 // Protected routes of product and logout
@@ -42,8 +42,8 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('/logout', [LoginRegisterController::class, 'logout']);
 
     Route::controller(ModuloController::class)->group(function() {
-        // Route::post('/products', 'store');
-        // Route::post('/products/{id}', 'update');
-        // Route::delete('/products/{id}', 'destroy');
+        Route::post('/modulos', 'store');
+        Route::post('/modulos/{id}', 'update');
+        Route::delete('/modulos/{id}', 'destroy');
     });
 });
