@@ -13,7 +13,22 @@ class ModuloController extends Controller
      */
     public function index()
     {
-        //
+        $modulos = Modulo::latest()->with('especialidad')->with('curso')->with('user')->with('aulas')->get();
+
+        if (is_null($modulos->first())) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No product found!',
+            ], 200);
+        }
+
+        $response = [
+            'status' => 'success',
+            'message' => 'modulos are retrieved successfully.',
+            'data' => $modulos,
+        ];
+
+        return response()->json($response, 200);
     }
 
     /**
