@@ -12,7 +12,6 @@ class Aula extends Model
 
     protected $fillable = [
         'name',
-        'modulo_id'
     ];
 
     public function modulos()

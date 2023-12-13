@@ -36,7 +36,37 @@ class ModuloController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // $validate = Validator::make($request->all(), [
+        //     'name' => 'required|string|max:250',
+        //     'description' => 'required|string|'
+        // ]);
+
+        // if($validate->fails()){  
+        //     return response()->json([
+        //         'status' => 'failed',
+        //         'message' => 'Validation Error!',
+        //         'data' => $validate->errors(),
+        //     ], 403);    
+        // }
+
+
+        // protected $fillable = [
+        //     'cod',
+        //     'materia',
+        //     'especialidad_id',
+        //     'curso_id',
+        //     'aula_id',
+        //     'user_id'
+        // ];
+        $product = Modulo::create($request->all());
+
+        $response = [
+            'status' => 'success',
+            'message' => 'Product is added successfully.',
+            'data' => $product,
+        ];
+
+        return response()->json($response, 200);
     }
 
     /**

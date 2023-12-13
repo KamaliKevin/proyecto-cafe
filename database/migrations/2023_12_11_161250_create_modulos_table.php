@@ -14,11 +14,13 @@ return new class extends Migration
     {
         Schema::create('modulos', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('cod');
+            $table->string('materia');
+            
             $table->unsignedBigInteger('curso_id')->foreign('curso_id')->references('id')->on('cursos');
             $table->unsignedBigInteger('especialidad_id')->foreign('especialidad_id')->references('id')->on('especialidads');
             $table->unsignedBigInteger('user_id')->nullable()->default(null)->foreign('user_id')->references('id')->on('users');
-            //$table->unsignedBigInteger('aula_id')->nullable()->default(null)->foreign('aula_id')->references('id')->on('aulas');
+            $table->unsignedBigInteger('aula_id')->nullable()->default(null)->foreign('aula_id')->references('id')->on('aulas');
             $table->timestamps();
         });
     }

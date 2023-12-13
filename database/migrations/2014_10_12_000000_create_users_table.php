@@ -14,14 +14,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('lastName')->nullable()->default(null);
             $table->string('email')->unique();
-            $table->string('totalHours');
-            $table->string('observations');
+            $table->string('totalHours')->nullable()->default(null);
+            $table->string('observations')->nullable()->default(null);
 
-            $table->unsignedBigInteger('departamento_id')->foreign('departamento_id')->references('id')->on('departamentos');
-            $table->unsignedBigInteger('especialidad_id')->foreign('especialidad_id')->references('id')->on('especialidads');
+            $table->unsignedBigInteger('departamento_id')->foreign('departamento_id')->references('id')->on('departamentos')->nullable()->default(null);
+            $table->unsignedBigInteger('especialidad_id')->foreign('especialidad_id')->references('id')->on('especialidads')->nullable()->default(null);
 
-            $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable()->default(null);
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
