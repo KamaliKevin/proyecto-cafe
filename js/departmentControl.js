@@ -1,17 +1,17 @@
 // ==================== CONSTANTES ======================
 const DEPARTMENT_INDEX = getDepartmentIndex("Informática y comunicaciones");
+const RELATIONSHIP_PROPERTY_PATTERN = /^relationship\d+$/;
 
 
 // ==================== REFERENCIAS HTML ======================
 let departmentSchedulesBtnHTML = document.getElementById("departmentSchedulesBtn");
-let departmentSchedulesHTML = document.getElementById("departmentSchedules");
+let departmentWarnedTeachersBtnHTML = document.getElementById("departmentWarnedTeachersBtn");
+let departmentDataHTML = document.getElementById("departmentData");
 
 
 // ==================== EVENTOS ======================
-departmentSchedulesBtnHTML.addEventListener("click", function () {
-    showAllScheduleData();
-    departmentSchedulesBtnHTML.disabled = true;
-});
+departmentSchedulesBtnHTML.addEventListener("click", showAllScheduleData);
+departmentWarnedTeachersBtnHTML.addEventListener("click", showAllWarnedTeacherData);
 
 
 // ==================== ESTADO INICIAL ======================
@@ -20,15 +20,60 @@ departmentSchedulesBtnHTML.addEventListener("click", function () {
 
 // ==================== FUNCIONES ======================
 /**
+ * Muestra los datos de los profesores que no cumplen o sobrepasan las 18 horas semanales
+ * @return {void}
+ */
+function showAllWarnedTeacherData() {
+    departmentDataHTML.innerHTML = "";
+    let allWarnedTeacherData = getAllWarnedTeacherData();
+
+    allWarnedTeacherData.forEach(teacher => {
+        if(teacher.totalHours < 18 || teacher.totalHours > 18){
+            departmentDataHTML.innerHTML += `<p>
+                <span class="fw-bold">${teacher.name}:</span> <span class="fw-bold text-danger">${teacher.totalHours} horas</span>
+            </p>`;
+        }
+    });
+
+    departmentWarnedTeachersBtnHTML.disabled = true;
+    departmentSchedulesBtnHTML.disabled = false;
+}
+
+
+/**
+ * Consigue un arreglo de objetos de los profesores que no cumplen o sobrepasan las 18 horas semanales
+ * @return {object[]} Arreglos de objetos con los datos de dichos profesores
+ */
+function getAllWarnedTeacherData() {
+    let allScheduleData = getAllScheduleData(DEPARTMENT_INDEX);
+    let allWarnedTeacherData = [];
+    allScheduleData.forEach(schedule => {
+        let data = {};
+        let totalHours = 0;
+        for (const [key, value] of Object.entries(schedule)) {
+            if(RELATIONSHIP_PROPERTY_PATTERN.test(key)){
+                totalHours += value.hours;
+            }
+        }
+        data.name = schedule.teacherName;
+        data.totalHours = totalHours;
+        allWarnedTeacherData.push(data);
+    });
+
+    return allWarnedTeacherData;
+}
+
+
+/**
  * Enseña todos los datos de los horarios de los profesores de un departamento
  * @return {void}
  */
 function showAllScheduleData() {
-    const RELATIONSHIP_PROPERTY_PATTERN = /^relationship\d+$/;
+    departmentDataHTML.innerHTML = "";
     let allScheduleData = getAllScheduleData(DEPARTMENT_INDEX);
 
     allScheduleData.forEach(schedule => {
-        departmentSchedulesHTML.innerHTML += `<div class="mb-5" id="teacher${schedule.ref}Schedule">
+        departmentDataHTML.innerHTML += `<div class="mb-5" id="teacher${schedule.ref}Schedule">
             <p class="fw-bold" id="teacher${schedule.ref}Name">${schedule.teacherName}:</p>
             <table class="table table-bordered">
                 <thead>
@@ -57,10 +102,13 @@ function showAllScheduleData() {
                 <td>${value.distribution}</td>
                 <td>${value.classroom}</td>`;
 
-                departmentSchedulesHTML.querySelector(`#teacher${schedule.ref}Rows`).appendChild(row);
+                departmentDataHTML.querySelector(`#teacher${schedule.ref}Rows`).appendChild(row);
             }
         }
     });
+
+    departmentSchedulesBtnHTML.disabled = true;
+    departmentWarnedTeachersBtnHTML.disabled = false;
 }
 
 

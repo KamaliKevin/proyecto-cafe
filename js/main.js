@@ -3,7 +3,6 @@ const TEACHER_INDEX = getTeacherIndex("Daniel", "Rodríguez Ravelo"); // Índice
 const TEACHER_SPECIALTY_INDEX = getTeacherData(TEACHER_INDEX).specialtyIndex;
 const TEACHER_DEPARTMENT_INDEX = getTeacherData(TEACHER_INDEX).departmentIndex;
 const TOTAL_HOURS_LIMIT = 18; // Límite de horas totales a intentar no superar por parte del profesor/a
-const TOTAL_HOURS_LIMIT_WARNING = "LÍMITE DE 18 HORAS SEMANALES SUPERADO. POR FAVOR, EDITE O ELIMINE ALGÚN MÓDULO";
 const DEFAULT_SUBJECT_OPTION = "-- Elija un módulo --";
 
 // ================== VARIABLES ===================
