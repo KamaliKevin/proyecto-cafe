@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('totalHours')->nullable()->default(null);
             $table->string('observations')->nullable()->default(null);
+            $table->string('role')->default('teacher');
 
             $table->unsignedBigInteger('departamento_id')->foreign('departamento_id')->references('id')->on('departamentos')->nullable()->default(null);
             $table->unsignedBigInteger('especialidad_id')->foreign('especialidad_id')->references('id')->on('especialidads')->nullable()->default(null);

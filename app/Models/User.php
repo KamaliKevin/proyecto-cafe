@@ -27,7 +27,8 @@ class User extends Authenticatable
         'especialidad_id',
         'departamento_id',
         'observations',
-        'totalHours'
+        'totalHours',
+        'role'
     ];
 
     /**
