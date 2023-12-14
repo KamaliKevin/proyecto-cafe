@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Bootstrap CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <!-- Font Awesome -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+        <!-- CSS personalizado -->
+        <link href="css/main.css" rel="stylesheet">
+
+        <title>Departamento - CIFP Majada Marcial</title>
+    </head>
+
+    <body class="palegrey-bg">
+        <div class="d-flex justify-content-center align-content-center">
+
+            <!-- Información -->
+            <div class="info-width bg-white my-5 border border-dark border-1 rounded-3" id="departmentInfo">
+                <!-- Título de la información -->
+                <div class="py-3 px-5 semiblack-bg text-white border border-dark border-3 rounded-top-3">
+                    <h4>Información del departamento</h4>
+                </div>
+
+                <!-- Logo -->
+                <div class="d-flex justify-content-center align-content-center pt-3">
+                    <div class="s-logo-width">
+                        <img src="images/logo.png" class="img-fluid" alt="Logo">
+                    </div>
+                </div>
+
+                <!-- Contenido -->
+                <div class="py-3 px-5" id="departmentContent">
+                    <!-- Título del departamento -->
+                    <h4 class="mb-5" id="departmentTitle">Informática y comunicaciones</h4>
+
+                    <!-- Opciones del departamento -->
+                    <div class="d-flex justify-content-start align-content-center mb-5" id="departmentOptions">
+                        <button type="button" class="btn btn-primary me-3" id="departmentSchedulesBtn">
+                            Ver horarios de profesores
+                        </button>
+                        <button type="button" class="btn btn-primary" id="departmentTeacherNameBtn">
+                            Ver profesores que no llegan o sobrepasan las 18 horas semanales
+                        </button>
+                    </div>
+
+                    <!-- Datos del departamento -->
+                    <div id="departmentData">
+                        <!-- Datos de los horarios de los docentes -->
+                        <div class="mb-5" id="departmentSchedules">
+                            <!-- Aquí es dónde van los horarios de cada uno de los docente del mismo departamento -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="js/bootstrap.min.js"></script>
+        <!-- Especialidades -->
+        <script src="js/specialties.js"></script>
+        <!-- Departamentos -->
+        <script src="js/departments.js"></script>
+        <!-- Profesores -->
+        <script src="js/teachers.js"></script>
+        <!-- Cursos -->
+        <script src="js/courses.js"></script>
+        <!-- Módulos -->
+        <script src="js/subjects.js"></script>
+        <!-- Control de departamento -->
+        <script src="js/departmentControl.js"></script>
+    </body>
+</html>

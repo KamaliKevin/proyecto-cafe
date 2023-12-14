@@ -1,6 +1,5 @@
 // ================== CONSTANTES ===================
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// const PASSWORD_PATTERN = "";
 
 // ================== REFERENCIAS HTML ===================
 let emailHTML = document.getElementById("email");
@@ -20,7 +19,7 @@ function checkLoginData() {
     loginFormErrorsHTML.innerHTML = "";
     let errorCount = 0;
 
-    if(isOnlyWhitespaceOrEmpty(emailHTML.value) || isOnlyWhitespaceOrEmpty(passwordHTML.value)){
+    if(isOnlyWhitespaceOrEmpty(emailHTML.value)){
         loginFormErrorsHTML.innerHTML += `<p class="text-danger">
             <i class="fa-solid fa-circle-xmark text-danger"></i> Todos los datos son obligatorios
         </p>`;

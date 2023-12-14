@@ -14,6 +14,14 @@
     width: 33%;
 }
 
-.logo-width {
+.info-width {
+    width: 75%;
+}
+
+.m-logo-width {
     width: 40%;
+}
+
+.s-logo-width {
+    width: 20%;
 }
