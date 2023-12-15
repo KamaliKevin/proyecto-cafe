@@ -3,49 +3,49 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Modulo;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 
-class ModuloController extends Controller
+class SubjectController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
-        $modulos = Modulo::latest()->with('especialidad')->with('curso')->with('user')->with('aulas')->get();
+        $subjects = Subject::latest()->with('specialty')->with('course')->with('user')->get();
 
-        if (is_null($modulos->first())) {
+        if (is_null($subjects->first())) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'No product found!',
-            ], 200);
+                'message' => 'No subjects found',
+            ], 404);
         }
 
         $response = [
             'status' => 'success',
-            'message' => 'modulos are retrieved successfully.',
-            'data' => $modulos,
+            'message' => 'Subjects have been retrieved successfully',
+            'data' => $subjects,
         ];
 
         return response()->json($response, 200);
     }
 
-    public function indexTeacher($teachId)
+    public function indexUser($userId): \Illuminate\Http\JsonResponse
     {
-        $modulos = Modulo::where('user_id',$teachId)->with('especialidad')->with('curso')->with('user')->with('aulas')->get();
+        $subjects = Subject::where('user_id', $userId)->with('specialty')->with('course')->with('user')->get();
 
-        if (is_null($modulos->first())) {
+        if (is_null($subjects->first())) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'No product found!',
-            ], 200);
+                'message' => 'No subjects found',
+            ], 404);
         }
 
         $response = [
             'status' => 'success',
-            'message' => 'modulos are retrieved successfully.',
-            'data' => $modulos,
+            'message' => 'Subjects have been retrieved successfully',
+            'data' => $subjects,
         ];
 
         return response()->json($response, 200);
@@ -61,12 +61,12 @@ class ModuloController extends Controller
         //     'description' => 'required|string|'
         // ]);
 
-        // if($validate->fails()){  
+        // if($validate->fails()){
         //     return response()->json([
         //         'status' => 'failed',
         //         'message' => 'Validation Error!',
         //         'data' => $validate->errors(),
-        //     ], 403);    
+        //     ], 403);
         // }
 
 
@@ -78,12 +78,12 @@ class ModuloController extends Controller
         //     'aula_id',
         //     'user_id'
         // ];
-        $product = Modulo::create($request->all());
+        $subject = Subject::create($request->all());
 
         $response = [
             'status' => 'success',
-            'message' => 'Product is added successfully.',
-            'data' => $product,
+            'message' => 'Subject is added successfully',
+            'data' => $subject,
         ];
 
         return response()->json($response, 200);
@@ -92,14 +92,22 @@ class ModuloController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Modulo $modulo)
+    public function show(Subject $subject): \Illuminate\Http\JsonResponse
     {
-        //
+        // Eager load any relationships you want to include in the response:
+        $subject->with('specialty')->with('course')->with('user')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Subject has been retrieved successfully',
+            'data' => $subject,
+        ], 200);
     }
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Modulo $modulo)
+    public function update(Request $request, Subject $subject)
     {
         //
     }
@@ -107,7 +115,7 @@ class ModuloController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Modulo $modulo)
+    public function destroy(Subject $subject)
     {
         //
     }

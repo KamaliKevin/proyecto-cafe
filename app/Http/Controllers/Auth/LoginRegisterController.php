@@ -3,19 +3,22 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+
 class LoginRegisterController extends Controller
 {
      /**
      * Register a new user.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function register(Request $request)
+     * @param Request $request
+     * @return JsonResponse
+      */
+    public function register(Request $request): JsonResponse
     {
         $validate = Validator::make($request->all(), [
             'name' => 'required|string|max:250',
@@ -52,10 +55,10 @@ class LoginRegisterController extends Controller
     /**
      * Authenticate the user.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $validate = Validator::make($request->all(), [
             'email' => 'required|string|email',
@@ -67,7 +70,7 @@ class LoginRegisterController extends Controller
                 'status' => 'failed',
                 'message' => 'Validation Error!',
                 'data' => $validate->errors(),
-            ], 403);  
+            ], 403);
         }
 
         // Check email exist
@@ -83,7 +86,7 @@ class LoginRegisterController extends Controller
 
         $data['token'] = $user->createToken($request->email)->plainTextToken;
         $data['user'] = $user;
-        
+
         $response = [
             'status' => 'success',
             'message' => 'User is logged in successfully.',
@@ -91,20 +94,20 @@ class LoginRegisterController extends Controller
         ];
 
         return response()->json($response, 200);
-    } 
+    }
 
     /**
      * Log out the user from application.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         auth()->user()->tokens()->delete();
         return response()->json([
             'status' => 'success',
             'message' => 'User is logged out successfully'
             ], 200);
-    }    
+    }
 }

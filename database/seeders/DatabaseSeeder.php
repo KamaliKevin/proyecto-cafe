@@ -4,11 +4,11 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Departamento;
-use App\Models\Modulo;
+use App\Models\Department;
+use App\Models\Subject;
 use App\Models\Aula;
 use App\Models\Curso;
-use App\Models\Especialidad;
+use App\Models\Specialty;
 use App\Models\User;
 
 class DatabaseSeeder extends Seeder
@@ -25,17 +25,17 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $dep = new Departamento;
+        $dep = new Department;
         $dep->name = "Informatica";
         $dep->save();
-        $dep = new Departamento;
+        $dep = new Department;
         $dep->name = "Cocina";
         $dep->save();
 
-        $esp = new Especialidad;
+        $esp = new Specialty;
         $esp->name = "Sistemas y aplicaciones informaticas";
         $esp->save();
-        $esp = new Especialidad;
+        $esp = new Specialty;
         $esp->name = "Informatica";
         $esp->save();
 
@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
         $user->password = "aaa";
         $user->save();
 
-        $mod = new Modulo;
+        $mod = new Subject;
         $mod->cod = "DEW";
         $mod->materia = "Desarrolo entorno cliente";
         $mod->especialidad_id = 1;

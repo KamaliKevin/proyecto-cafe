@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Modulo;
-use App\Models\Especialidad;
-use App\Models\Departamento;
+use App\Models\Subject;
+use App\Models\Specialty;
+use App\Models\Department;
 
 class User extends Authenticatable
 {
@@ -22,12 +22,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'last_name',
         'email',
         'password',
-        'especialidad_id',
-        'departamento_id',
+        'specialty_id',
+        'department_id',
         'observations',
-        'totalHours',
+        'total_hours',
         'role'
     ];
 
@@ -50,17 +51,19 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    public function modulos()
+
+
+    public function subjects(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Modulo::class);
+        return $this->hasMany(Subject::class);
     }
 
-    public function especialidad()
+    public function specialty(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Especialidad::class);
+        return $this->belongsTo(Specialty::class);
     }
-    public function departamento()
+    public function department(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Departamento::class);
+        return $this->belongsTo(Department::class);
     }
 }

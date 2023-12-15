@@ -3,7 +3,6 @@ const TEACHER_INDEX = getTeacherIndex("Daniel", "Rodríguez Ravelo"); // Índice
 const TEACHER_SPECIALTY_INDEX = getTeacherData(TEACHER_INDEX).specialtyIndex;
 const TEACHER_DEPARTMENT_INDEX = getTeacherData(TEACHER_INDEX).departmentIndex;
 const TOTAL_HOURS_LIMIT = 18; // Límite de horas totales a intentar no superar por parte del profesor/a
-const TOTAL_HOURS_LIMIT_WARNING = "LÍMITE DE 18 HORAS SEMANALES SUPERADO. POR FAVOR, EDITE O ELIMINE ALGÚN MÓDULO";
 const DEFAULT_SUBJECT_OPTION = "-- Elija un módulo --";
 
 // ================== VARIABLES ===================
@@ -189,7 +188,6 @@ function removeRelationshipData(relationshipRef){
  * @return {void}
  */
 function saveAddRelationshipData(relationshipRef) {
-    // TODO - FUNCIÓN DEFECTUOSA: el nombre no se selecciona cuando se añade el módulo. Averiguar por qué
     let specificSubjectFields = getRelationshipFields(relationshipRef);
 
     // Restringir guardar un módulo cuando los campos estén vacíos:
@@ -258,19 +256,19 @@ function saveAddRelationshipData(relationshipRef) {
             </div>
         </div>`;
 
-        setTimeout(() => {
-            subjects.forEach(subject => {
-                if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
-                    let subjectOptionHTML = document.createElement("option");
-                    subjectOptionHTML.value = subject.name;
-                    subjectOptionHTML.textContent = subject.name;
-                    if(subject.name === specificSubjectFields.nameHTML.value){
-                        subjectOptionHTML.selected = true;
-                    }
-                    subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+        /*
+        subjects.forEach(subject => {
+            if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
+                let subjectOptionHTML = document.createElement("option");
+                subjectOptionHTML.value = subject.name;
+                subjectOptionHTML.textContent = subject.name;
+                if(subject.name === specificSubjectFields.nameHTML.value){
+                    subjectOptionHTML.defaultSelected = true;
                 }
-            });
-        }, 100);
+                subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+            }
+        });
+        */
 
         setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
             specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
@@ -401,11 +399,7 @@ function updateAllRelationshipData(teacherIndex, isDeletingOrAdding = false) {
     hoursWarningHTML.className = "";
     hoursWarningHTML.textContent = "";
 
-    if (totalHours > TOTAL_HOURS_LIMIT) {
-        totalHoursHTML.classList.add("text-danger", "fw-bold");
-        hoursWarningHTML.classList.add("text-danger", "fw-bold");
-        hoursWarningHTML.textContent = TOTAL_HOURS_LIMIT_WARNING;
-    }
+    checkRelationshipHours(totalHours);
 
     if(totalHours < TOTAL_HOURS_LIMIT && !document.querySelector("#addSubjectBtn")){
         createAddSubjectBtn();
@@ -627,13 +621,14 @@ function showAllRelationshipData() {
             </div>
         </div>`;
 
+
         subjects.forEach(subject => {
             if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
                 let subjectOptionHTML = document.createElement("option");
                 subjectOptionHTML.value = subject.name;
                 subjectOptionHTML.textContent = subject.name;
                 if(subject.name === relationship.name){
-                    subjectOptionHTML.selected = true;
+                    subjectOptionHTML.defaultSelected = true;
                 }
                 subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectOptionHTML);
             }
@@ -643,7 +638,32 @@ function showAllRelationshipData() {
     });
 
     totalHoursHTML.textContent = totalHours;
+    checkRelationshipHours(totalHours);
 }
+
+
+/**
+ * Comprueba si las horas semanales son menores o mayores de 18 y da el aviso correspondiente
+ * @return {void}
+ */
+function checkRelationshipHours(totalHours) {
+    if (totalHours > TOTAL_HOURS_LIMIT) {
+        totalHoursHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.textContent = "Límite de 18 horas semanales superado. Por favor, edite o elimine algún módulo";
+    }
+    else if(totalHours < TOTAL_HOURS_LIMIT){
+        totalHoursHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.textContent = "Aún se encuentra por debajo de las 18 horas. Por favor, edite o añada algún módulo";
+    }
+    else {
+        totalHoursHTML.classList.add("text-success", "fw-bold");
+        hoursWarningHTML.classList.add("text-success", "fw-bold");
+        hoursWarningHTML.textContent = "Ha llegado a las 18 horas exactas. Ya puede dejar de editar, eliminar o añadir módulos";
+    }
+}
+
 
 
 /**

@@ -12,9 +12,13 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
 </head>
 <body>
     <div id="app">
@@ -72,9 +76,24 @@
             </div>
         </nav>
 
-        <main class="py-4">
+        <main class="py-4 palegrey-bg">
             @yield('content')
         </main>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <!-- Especialidades -->
+    <script src="{{ asset('js/specialties.js') }}"></script>
+    <!-- Departamentos -->
+    <script src="{{ asset('js/departments.js') }}"></script>
+    <!-- Profesores -->
+    <script src="{{ asset('js/teachers.js') }}"></script>
+    <!-- Cursos -->
+    <script src="{{ asset('js/courses.js') }}"></script>
+    <!-- Módulos -->
+    <script src="{{ asset('js/subjects.js') }}"></script>
+    <!-- Módulos -->
+    <script src="{{ asset('js/main.js') }}"></script>
 </body>
 </html>

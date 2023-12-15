@@ -4,10 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Modulo;
 use App\Models\User;
 
-class Especialidad extends Model
+class Department extends Model
 {
     use HasFactory;
 
@@ -15,11 +14,7 @@ class Especialidad extends Model
         'name'
     ];
 
-    public function modulos()
-    {
-        return $this->hasMany(Modulo::class);
-    }
-    public function usuarios()
+    public function user(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class);
     }

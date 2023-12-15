@@ -12,12 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cursos', function (Blueprint $table) {
+        Schema::create('courses', function (Blueprint $table) {
             $table->id();
+            $table->string('name')->unique();
+            $table->string('grade');
+            $table->enum('shift_time', ["Mañana", "Tarde"]);
             $table->timestamps();
-            $table->string('name');
-            $table->string('grado')->default("1º");
-            $table->string('turno');
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cursos');
+        Schema::dropIfExists('courses');
     }
-    
+
 };
