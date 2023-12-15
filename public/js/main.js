@@ -439,8 +439,8 @@ function getRelationshipIndex(relationshipRef) {
  * @param {number} teacherIndex Índice del profesor/a
  * @return {object[]} Arreglo de objetos con datos relacionales
  */
-async function getAllRelationshipData(teacherIndex) {
-    await fetch('http://localhost:8000/api/modulos/profesor/1')
+async function getAllRelationshipData(teacherID) {
+    await fetch('http://localhost:8000/api/modulos/profesor/'+teacherID)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
