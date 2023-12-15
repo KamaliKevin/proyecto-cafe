@@ -12,6 +12,7 @@ let loginFormErrorsHTML = document.getElementById("loginFormErrors");
 // ================== EVENTOS FIJOS ===================
 loginBtnHTML.addEventListener("click", function () {
     checkLoginData();
+    console.log("AAAAAAAAA");
 });
 
 

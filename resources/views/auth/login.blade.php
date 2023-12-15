@@ -10,7 +10,8 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <!-- CSS personalizado -->
-    <link href="css/main.css" rel="stylesheet">
+    <link href="{{ asset('css/main.css')}}" rel="stylesheet">
+    <!-- //<link href="css/main.css" rel="stylesheet"> -->
 
     <title>Iniciar sesión - CIFP Majada Marcial</title>
 </head>
@@ -29,7 +30,7 @@
             <!-- Logo -->
             <div class="d-flex justify-content-center align-content-center pt-3">
                 <div class="m-logo-width">
-                    <img src="images/logo.png" class="img-fluid" alt="Logo">
+                    <img src="{{ asset('images/logo.png')}}" class="img-fluid" alt="Logo">
                 </div>
             </div>
 
