@@ -30,7 +30,8 @@
             <!-- Logo -->
             <div class="d-flex justify-content-center align-content-center pt-3">
                 <div class="m-logo-width">
-                    <img src="{{ asset('images/logo.png')}}" class="img-fluid" alt="Logo">
+                    <!-- <img src="{{ asset('images/logo.png')}}" class="img-fluid" alt="Logo"> -->
+                    <img src="images/logo.png" class="img-fluid" alt="Logo">
                 </div>
             </div>
 
