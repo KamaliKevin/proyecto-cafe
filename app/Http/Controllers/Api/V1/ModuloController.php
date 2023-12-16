@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Modulo;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class ModuloController extends Controller
 {
@@ -33,7 +34,7 @@ class ModuloController extends Controller
 
     public function indexTeacher($teachId)
     {
-        $modulos = Modulo::where('user_id',$teachId)->with('especialidad')->with('curso')->with('user')->with('aulas')->get();
+        $modulos = Modulo::where('user_id', $teachId)->with('especialidad')->with('curso')->with('user')->with('aulas')->get();
 
         if (is_null($modulos->first())) {
             return response()->json([
@@ -51,6 +52,34 @@ class ModuloController extends Controller
         return response()->json($response, 200);
     }
 
+    public function indexTeacherMissing($teachId)
+    {
+        // Assuming you have the user ID
+        $user = User::findOrFail($teachId);
+
+        $modulos = Modulo::where('especialidad_id', $user->especialidad_id)
+            ->whereDoesntHave('user', function ($query) use ($teachId) {
+                $query->where('user_id', $teachId);
+            })
+            ->with('especialidad') // Use with() to keep null values
+            ->get();
+
+
+        if (is_null($modulos->first())) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No product found!',
+            ], 200);
+        }
+
+        $response = [
+            'status' => 'success',
+            'message' => 'modulos are retrieved successfully.',
+            'data' => $modulos,
+        ];
+
+        return response()->json($response, 200);
+    }
     /**
      * Store a newly created resource in storage.
      */

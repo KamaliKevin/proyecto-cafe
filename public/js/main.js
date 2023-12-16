@@ -25,7 +25,7 @@ let hoursWarningHTML = document.getElementById("hoursWarning"); // Aviso de hora
 
 
 // ================== ESTADO INICIAL ===================
-showTeacherData(TEACHER_INDEX);
+showTeacherData();
 showAllRelationshipData();
 createAddSubjectBtn();
 
@@ -297,7 +297,7 @@ function cancelAddRelationshipData() {
  * Crea el formulario para la adición de módulos relacionados a un profesor/a
  * @return {void}
  */
-function createAddRelationshipDataForm() {
+async function createAddRelationshipDataForm() {
     if (document.querySelector("#addSubjectBtn")) {
         deleteAddSubjectBtn();
     }
@@ -359,19 +359,28 @@ function createAddRelationshipDataForm() {
 
 
     // Filtrar las opciones a la hora de añadir un módulo:
-    let filteredSubjects = subjects.filter(subject => subject.specialtyIndex === TEACHER_SPECIALTY_INDEX);
-    let subjectNames = filteredSubjects.map(subject => subject.name);
-    let relationshipNames = currentRelationshipData.map(relationship => relationship.name);
-    let relationshipNamesSet = new Set(relationshipNames);
-    let filteredSubjectNames = subjectNames.filter(name => !relationshipNamesSet.has(name));
 
-    filteredSubjectNames.forEach(name => {
-        let subjectOptionHTML = document.createElement("option");
-        subjectOptionHTML.value = name;
-        subjectOptionHTML.textContent = name;
-        addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
-    });
-
+    const userID = localStorage.getItem('userID');
+    await fetch('http://localhost:8000/api/modulos/profesorm/' + userID)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Le data");
+            console.log(data.data);
+            data.data.forEach(element => {
+                let subjectOptionHTML = document.createElement("option");
+                subjectOptionHTML.value = element.materia;
+                subjectOptionHTML.textContent = element.materia;
+                addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+            });
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
 
     // Hacer que el autocompletado cuando se elija un módulo sea efectivo:
     let subjectNameHTML = addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`);
@@ -703,7 +712,7 @@ function checkRelationshipHours(totalHours) {
  * @param {number} teacherIndex Índice de un profesor/a
  * @return {void}
  */
-async function showTeacherData(teacherIndex) {
+async function showTeacherData() {
     console.log("AAAAAAAAAAAAAAAAAAAA");
 
     const userID = localStorage.getItem('userID');
