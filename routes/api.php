@@ -34,7 +34,7 @@ Route::controller(LoginRegisterController::class)->group(function() {
 // Public routes of product
 Route::controller(ModuloController::class)->group(function() {
     Route::get('/modulos', 'index');
-    Route::get('/modulos/{id}', 'show');
+    Route::get('/modulos/show/{id}', 'show');
     Route::get('/modulos/profesor/{id}', 'indexTeacher');
     Route::get('/modulos/profesorm/{id}', 'indexTeacherMissing');
 });

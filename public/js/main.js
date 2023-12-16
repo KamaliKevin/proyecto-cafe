@@ -361,6 +361,8 @@ async function createAddRelationshipDataForm() {
     // Filtrar las opciones a la hora de añadir un módulo:
 
     const userID = localStorage.getItem('userID');
+    let moduleData;
+    console.log(relationshipRef);
     await fetch('http://localhost:8000/api/modulos/profesorm/' + userID)
         .then(response => {
             if (!response.ok) {
@@ -369,6 +371,7 @@ async function createAddRelationshipDataForm() {
             return response.json();
         })
         .then(data => {
+            moduleData = data;
             console.log("Le data");
             console.log(data.data);
             data.data.forEach(element => {
@@ -384,9 +387,8 @@ async function createAddRelationshipDataForm() {
 
     // Hacer que el autocompletado cuando se elija un módulo sea efectivo:
     let subjectNameHTML = addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`);
-    let toggleRelationshipDataRef = () => toggleRelationshipData(relationshipRef);
-    subjectNameHTML.addEventListener("change", toggleRelationshipDataRef);
-    subjectNameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
+    subjectNameHTML.addEventListener("change", () => toggleRelationshipData(relationshipRef));
+    // subjectNameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
 }
 
 
@@ -462,8 +464,9 @@ async function getAllRelationshipData() {
             if (data.status == "failed") {
 
             }
-            data.data.forEach((data, i) => {
+            data.data.forEach(data => {
                 let smallData = {}
+                smallData.id = data.id;
                 smallData.name = data.materia;
                 smallData.course = {
                     index: data.curso.id - 1,
@@ -490,7 +493,6 @@ async function getAllRelationshipData() {
                 smallData.distribution = "5";
                 // smallData.comments = data.comments;
                 smallData.comments = "AA";
-                smallData.ref = i + 1;
                 currentRelationshipData.push(smallData);
                 subjects = currentRelationshipData;
             });
@@ -568,29 +570,43 @@ function createAddSubjectBtn() {
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
  * @return {void}
  */
-function toggleRelationshipData(relationshipRef) {
+async function toggleRelationshipData(relationshipRef) {
+    console.log(relationshipRef);
+    relationshipRef = relationshipRef;
     let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-    if (specificSubjectFields.nameHTML.value === DEFAULT_SUBJECT_OPTION) {
-
-        specificSubjectFields.nameHTML.value = DEFAULT_SUBJECT_OPTION;
+        specificSubjectFields.nameHTML.value = "";
         specificSubjectFields.shiftTimeHTML.value = "";
         specificSubjectFields.gradeHTML.value = "";
         specificSubjectFields.courseNameHTML.value = "";
         specificSubjectFields.classroomHTML.value = "";
         specificSubjectFields.hoursHTML.value = "";
-    }
-    else {
-        let newSubjectData = getSubjectData(getSubjectIndex(specificSubjectFields.nameHTML.value));
-        let newCourseData = getCourseData(newSubjectData.courseIndex);
 
-        specificSubjectFields.nameHTML.value = newSubjectData.name;
-        specificSubjectFields.shiftTimeHTML.value = newCourseData.shiftTime;
-        specificSubjectFields.gradeHTML.value = newCourseData.grade;
-        specificSubjectFields.courseNameHTML.value = newCourseData.name;
-        specificSubjectFields.classroomHTML.value = newSubjectData.classroom;
-        specificSubjectFields.hoursHTML.value = newSubjectData.hours;
-    }
+        await fetch('http://localhost:8000/api/modulos/show/' + relationshipRef)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                data = data[0];
+                console.log(data);
+
+
+                specificSubjectFields.nameHTML.value = data.materia;
+                specificSubjectFields.shiftTimeHTML.value = data.curso.turno;
+                specificSubjectFields.gradeHTML.value = data.grade;
+                specificSubjectFields.courseNameHTML.value = data.curso.name;
+                data.aulas.forEach(element => {
+                    specificSubjectFields.classroomHTML.value =+ element;
+                });
+                specificSubjectFields.hoursHTML.value = data.hours;
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
+
 }
 
 
@@ -603,58 +619,59 @@ function showAllRelationshipData() {
     console.log("AAAA");
     console.log(currentRelationshipData);
     currentRelationshipData.forEach(relationship => {
-        console.log(relationship);
-        subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationship.ref}Container">
+        console.log("BS REF");
+        console.log(relationship.id);
+        subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationship.id}Container">
             <h2 class="accordion-header">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#subject${relationship.ref}Data" aria-expanded="false" 
-                        aria-controls="subject${relationship.ref}Data" id="subject${relationship.ref}Title">
+                        data-bs-target="#subject${relationship.id}Data" aria-expanded="false" 
+                        aria-controls="subject${relationship.id}Data" id="subject${relationship.id}Title">
                     ${relationship.name}
                 </button>
             </h2>
-            <div id="subject${relationship.ref}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
+            <div id="subject${relationship.id}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
                 <div class="accordion-body">
-                    <form id="subject${relationship.ref}Form">
+                    <form id="subject${relationship.id}Form">
                         
                         <div class="mb-3">
-                            <label for="subject${relationship.ref}ShiftTime" class="form-label">Turno</label>
-                            <input type="text" class="form-control" id="subject${relationship.ref}ShiftTime" 
-                            name="subject${relationship.ref}ShiftTime" value="${relationship.course.shiftTime}" disabled>
+                            <label for="subject${relationship.id}ShiftTime" class="form-label">Turno</label>
+                            <input type="text" class="form-control" id="subject${relationship.id}ShiftTime" 
+                            name="subject${relationship.id}ShiftTime" value="${relationship.course.shiftTime}" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="subject${relationship.ref}Grade" class="form-label">Grado</label>
-                            <input type="text" class="form-control" id="subject${relationship.ref}Grade" 
-                            name="subject${relationship.ref}Grade" value="${relationship.course.grade}" disabled>
+                            <label for="subject${relationship.id}Grade" class="form-label">Grado</label>
+                            <input type="text" class="form-control" id="subject${relationship.id}Grade" 
+                            name="subject${relationship.id}Grade" value="${relationship.course.grade}" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="subject${relationship.ref}CourseName" class="form-label">Ciclo</label>
-                            <input type="text" class="form-control" id="subject${relationship.ref}CourseName" 
-                            name="subject${relationship.ref}CourseName" value="${relationship.course.name}" disabled>
+                            <label for="subject${relationship.id}CourseName" class="form-label">Ciclo</label>
+                            <input type="text" class="form-control" id="subject${relationship.id}CourseName" 
+                            name="subject${relationship.id}CourseName" value="${relationship.course.name}" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="subject${relationship.ref}Classroom" class="form-label">Aula</label>
-                            <input type="text" class="form-control" id="subject${relationship.ref}Classroom" 
-                            name="subject${relationship.ref}Classroom" value="${relationship.classroom}" disabled>
+                            <label for="subject${relationship.id}Classroom" class="form-label">Aula</label>
+                            <input type="text" class="form-control" id="subject${relationship.id}Classroom" 
+                            name="subject${relationship.id}Classroom" value="${relationship.classroom}" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="subject${relationship.ref}Hours" class="form-label">Horas semanales</label>
-                            <input type="text" class="form-control" id="subject${relationship.ref}Hours" 
-                            name="subject${relationship.ref}Hours" value="${relationship.hours}" disabled>
+                            <label for="subject${relationship.id}Hours" class="form-label">Horas semanales</label>
+                            <input type="text" class="form-control" id="subject${relationship.id}Hours" 
+                            name="subject${relationship.id}Hours" value="${relationship.hours}" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="subject${relationship.ref}Distribution" class="form-label">Distribución semanal</label>
-                            <input type="text" class="form-control" id="subject${relationship.ref}Distribution" 
-                            name="subject${relationship.ref}Distribution" value="${relationship.distribution}" disabled>
+                            <label for="subject${relationship.id}Distribution" class="form-label">Distribución semanal</label>
+                            <input type="text" class="form-control" id="subject${relationship.id}Distribution" 
+                            name="subject${relationship.id}Distribution" value="${relationship.distribution}" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="subject${relationship.ref}Comments" class="form-label">Comentarios</label>
-                            <textarea class="form-control" id="subject${relationship.ref}Comments" 
-                            name="subject${relationship.ref}Comments" rows="5" disabled>${relationship.comments}</textarea>
+                            <label for="subject${relationship.id}Comments" class="form-label">Comentarios</label>
+                            <textarea class="form-control" id="subject${relationship.id}Comments" 
+                            name="subject${relationship.id}Comments" rows="5" disabled>${relationship.comments}</textarea>
                         </div>
-                        <button type="button" class="btn btn-warning" id="subject${relationship.ref}EditBtn">
+                        <button type="button" class="btn btn-warning" id="subject${relationship.id}EditBtn">
                             <i class="fa-solid fa-pen-to-square"></i> Editar módulo
                         </button>
-                        <button type="button" class="btn btn-danger" id="subject${relationship.ref}DeleteBtn">
+                        <button type="button" class="btn btn-danger" id="subject${relationship.id}DeleteBtn">
                             <i class="fa-solid fa-trash"></i> Eliminar módulo
                         </button>
                     </form>
@@ -671,7 +688,7 @@ function showAllRelationshipData() {
                 if (subject.name === relationship.name) {
                     subjectOptionHTML.defaultSelected = true;
                 }
-                subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectOptionHTML);
+                subjectContainerHTML.querySelector(`#subject${relationship.id}Name`).appendChild(subjectOptionHTML);
             }
         });
 

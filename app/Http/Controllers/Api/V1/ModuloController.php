@@ -121,9 +121,10 @@ class ModuloController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Modulo $modulo)
+    public function show($id)
     {
-        //
+        $modulo = Modulo::where('id',$id)->with('aulas')->with('curso')->get();
+        return response()->json($modulo, 200);
     }
     /**
      * Update the specified resource in storage.

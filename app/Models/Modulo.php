@@ -15,6 +15,7 @@ class Modulo extends Model
     protected $fillable = [
         'cod',
         'materia',
+        'horas',
         'especialidad_id',
         'curso_id',
         'aula_id',
