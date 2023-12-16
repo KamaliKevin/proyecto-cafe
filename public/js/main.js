@@ -439,8 +439,9 @@ function getRelationshipIndex(relationshipRef) {
  * @param {number} teacherIndex Índice del profesor/a
  * @return {object[]} Arreglo de objetos con datos relacionales
  */
-async function getAllRelationshipData(teacherID) {
-    await fetch('http://localhost:8000/api/modulos/profesor/'+teacherID)
+async function getAllRelationshipData() {
+    const userID = localStorage.getItem('userID');
+    await fetch('http://localhost:8000/api/modulos/profesor/' + userID)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -448,6 +449,10 @@ async function getAllRelationshipData(teacherID) {
             return response.json();
         })
         .then(data => {
+            console.log(data);
+            if(data.status == "failed"){
+                
+            }
             data.data.forEach((data, i) => {
                 let smallData = {}
                 smallData.name = data.materia;
