@@ -3,11 +3,11 @@ const TEACHER_INDEX = getTeacherIndex("Daniel", "Rodríguez Ravelo"); // Índice
 const TEACHER_SPECIALTY_INDEX = getTeacherData(TEACHER_INDEX).specialtyIndex;
 const TEACHER_DEPARTMENT_INDEX = getTeacherData(TEACHER_INDEX).departmentIndex;
 const TOTAL_HOURS_LIMIT = 18; // Límite de horas totales a intentar no superar por parte del profesor/a
-const TOTAL_HOURS_LIMIT_WARNING = "LÍMITE DE 18 HORAS SEMANALES SUPERADO. POR FAVOR, EDITE O ELIMINE ALGÚN MÓDULO";
 const DEFAULT_SUBJECT_OPTION = "-- Elija un módulo --";
 
 // ================== VARIABLES ===================
-let currentRelationshipData = getAllRelationshipData(TEACHER_INDEX); // Arreglo de objectos de los módulos relacionados
+let currentRelationshipData = []; // Arreglo de objectos de los módulos relacionados
+getAllRelationshipData();
 
 
 // ================== REFERENCIAS HTML ===================
@@ -32,8 +32,8 @@ createAddSubjectBtn();
 
 // ================== EVENTOS FIJOS ===================
 formContentHTML.addEventListener("click", function (event) {
-    if(event.target.classList.contains("btn-success")
-        && event.target.textContent.includes("Añadir módulo")){
+    if (event.target.classList.contains("btn-success")
+        && event.target.textContent.includes("Añadir módulo")) {
 
         createAddRelationshipDataForm();
     }
@@ -64,16 +64,16 @@ subjectContainerHTML.addEventListener("click", function (event) {
     }
 });
 
-addSubjectContainerHTML.addEventListener("click", function (event){
+addSubjectContainerHTML.addEventListener("click", function (event) {
     let relationshipRef = getRelationshipRefFromEvent(event);
 
-    if(event.target.classList.contains("btn-danger")
-        && event.target.textContent.includes("Cancelar módulo")){
+    if (event.target.classList.contains("btn-danger")
+        && event.target.textContent.includes("Cancelar módulo")) {
 
         cancelAddRelationshipData();
     }
-    else if(event.target.classList.contains("btn-success")
-        && event.target.textContent.includes("Guardar módulo")){
+    else if (event.target.classList.contains("btn-success")
+        && event.target.textContent.includes("Guardar módulo")) {
 
         saveAddRelationshipData(relationshipRef);
     }
@@ -170,7 +170,7 @@ function editRelationshipData(relationshipRef) {
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
  * @return {void}
  */
-function removeRelationshipData(relationshipRef){
+function removeRelationshipData(relationshipRef) {
     let specificSubjectContainerHTML = document.getElementById(`subject${relationshipRef}Container`);
 
     let specificSubjectFields = getRelationshipFields(relationshipRef);
@@ -189,11 +189,10 @@ function removeRelationshipData(relationshipRef){
  * @return {void}
  */
 function saveAddRelationshipData(relationshipRef) {
-    // TODO - FUNCIÓN DEFECTUOSA: el nombre no se selecciona cuando se añade el módulo. Averiguar por qué
     let specificSubjectFields = getRelationshipFields(relationshipRef);
-
+    console.log(specificSubjectFields);
     // Restringir guardar un módulo cuando los campos estén vacíos:
-    if(specificSubjectFields.nameHTML.value !== DEFAULT_SUBJECT_OPTION){
+    if (specificSubjectFields.nameHTML.value !== DEFAULT_SUBJECT_OPTION) {
         subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationshipRef}Container">
             <h2 class="accordion-header">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -258,19 +257,19 @@ function saveAddRelationshipData(relationshipRef) {
             </div>
         </div>`;
 
-        setTimeout(() => {
-            subjects.forEach(subject => {
-                if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
-                    let subjectOptionHTML = document.createElement("option");
-                    subjectOptionHTML.value = subject.name;
-                    subjectOptionHTML.textContent = subject.name;
-                    if(subject.name === specificSubjectFields.nameHTML.value){
-                        subjectOptionHTML.selected = true;
-                    }
-                    subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+        /*
+        subjects.forEach(subject => {
+            if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
+                let subjectOptionHTML = document.createElement("option");
+                subjectOptionHTML.value = subject.name;
+                subjectOptionHTML.textContent = subject.name;
+                if(subject.name === specificSubjectFields.nameHTML.value){
+                    subjectOptionHTML.defaultSelected = true;
                 }
-            });
-        }, 100);
+                subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+            }
+        });
+        */
 
         setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
             specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
@@ -288,7 +287,7 @@ function saveAddRelationshipData(relationshipRef) {
  * Cancela guardar un módulo relacionado nuevo
  * @return {void}
  */
-function cancelAddRelationshipData(){
+function cancelAddRelationshipData() {
     addSubjectContainerHTML.innerHTML = "";
     createAddSubjectBtn();
 }
@@ -299,7 +298,7 @@ function cancelAddRelationshipData(){
  * @return {void}
  */
 function createAddRelationshipDataForm() {
-    if(document.querySelector("#addSubjectBtn")){
+    if (document.querySelector("#addSubjectBtn")) {
         deleteAddSubjectBtn();
     }
 
@@ -401,17 +400,13 @@ function updateAllRelationshipData(teacherIndex, isDeletingOrAdding = false) {
     hoursWarningHTML.className = "";
     hoursWarningHTML.textContent = "";
 
-    if (totalHours > TOTAL_HOURS_LIMIT) {
-        totalHoursHTML.classList.add("text-danger", "fw-bold");
-        hoursWarningHTML.classList.add("text-danger", "fw-bold");
-        hoursWarningHTML.textContent = TOTAL_HOURS_LIMIT_WARNING;
-    }
+    checkRelationshipHours(totalHours);
 
-    if(totalHours < TOTAL_HOURS_LIMIT && !document.querySelector("#addSubjectBtn")){
+    if (totalHours < TOTAL_HOURS_LIMIT && !document.querySelector("#addSubjectBtn")) {
         createAddSubjectBtn();
     }
 
-    if(isDeletingOrAdding){
+    if (isDeletingOrAdding) {
         subjectContainerHTML.innerHTML = "";
         showAllRelationshipData();
     }
@@ -444,27 +439,56 @@ function getRelationshipIndex(relationshipRef) {
  * @param {number} teacherIndex Índice del profesor/a
  * @return {object[]} Arreglo de objetos con datos relacionales
  */
-function getAllRelationshipData(teacherIndex) {
-    let count = 1;
-    let filteredData = subjects.filter(subject => subject.teacherIndex === teacherIndex);
-    return filteredData.map(relationship => {
-        const {courseIndex, specialtyIndex, teacherIndex, ...rest} = relationship;
-        let courseData = getCourseData(courseIndex);
-        return {
-            ...rest,
-            ref: count++,
-            course: {
-                index: courseIndex,
-                name: courseData.name,
-                grade: courseData.grade,
-                shiftTime: courseData.shiftTime
-            },
-            specialty: {
-                index: specialtyIndex,
-                name: getSpecialtyData(specialtyIndex).name
+async function getAllRelationshipData(teacherID) {
+    await fetch('http://localhost:8000/api/modulos/profesor/'+teacherID)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
             }
-        };
-    });
+            return response.json();
+        })
+        .then(data => {
+            data.data.forEach((data, i) => {
+                let smallData = {}
+                smallData.name = data.materia;
+                smallData.course = {
+                    index: data.curso.id - 1,
+                    grade: data.curso.grado,
+                    name: data.curso.name,
+                    shiftTime: data.curso.turno
+                }
+
+                // smallData.codigo = data.cod;
+                //smallData.classroom = []
+                // data.aulas.forEach(classroom => {
+                //     smallData.classroom.push(classroom.name)
+                // });
+                smallData.classroom = "A";
+                // smallData.hours = data.hours;
+                smallData.hours = 5;
+
+                smallData.specialty = {
+                    index: data.especialidad.id - 1,
+                    name: data.especialidad.name
+                }
+                //smallData.teacherIndex = data.user.id - 1;
+                smallData.distribution = data.distribution;
+                smallData.distribution = "5";
+                // smallData.comments = data.comments;
+                smallData.comments = "AA";
+                smallData.ref = i + 1;
+                currentRelationshipData.push(smallData);
+                subjects = currentRelationshipData;
+            });
+
+            showAllRelationshipData();
+            //console.log(bigData);
+            // return curso 
+        })
+        .catch(error => {
+            // Handle errors during the fetch
+            console.error('Fetch error:', error);
+        });
 }
 
 
@@ -533,7 +557,7 @@ function createAddSubjectBtn() {
 function toggleRelationshipData(relationshipRef) {
     let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-    if(specificSubjectFields.nameHTML.value === DEFAULT_SUBJECT_OPTION){
+    if (specificSubjectFields.nameHTML.value === DEFAULT_SUBJECT_OPTION) {
 
         specificSubjectFields.nameHTML.value = DEFAULT_SUBJECT_OPTION;
         specificSubjectFields.shiftTimeHTML.value = "";
@@ -562,7 +586,10 @@ function toggleRelationshipData(relationshipRef) {
  */
 function showAllRelationshipData() {
     let totalHours = 0;
+    console.log("AAAA");
+    console.log(currentRelationshipData);
     currentRelationshipData.forEach(relationship => {
+        console.log(relationship);
         subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationship.ref}Container">
             <h2 class="accordion-header">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -574,13 +601,7 @@ function showAllRelationshipData() {
             <div id="subject${relationship.ref}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
                 <div class="accordion-body">
                     <form id="subject${relationship.ref}Form">
-                        <div class="mb-3">
-                            <label for="subject${relationship.ref}Name" class="form-label">Módulo</label>
-                            <select class="form-select" id="subject${relationship.ref}Name" 
-                            name="subject${relationship.ref}Name" disabled>
-                                <!-- Aquí van todos los nombres de módulos -->
-                            </select>
-                        </div>
+                        
                         <div class="mb-3">
                             <label for="subject${relationship.ref}ShiftTime" class="form-label">Turno</label>
                             <input type="text" class="form-control" id="subject${relationship.ref}ShiftTime" 
@@ -627,13 +648,14 @@ function showAllRelationshipData() {
             </div>
         </div>`;
 
+
         subjects.forEach(subject => {
-            if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
+            if (subject.specialtyIndex === TEACHER_SPECIALTY_INDEX) {
                 let subjectOptionHTML = document.createElement("option");
                 subjectOptionHTML.value = subject.name;
                 subjectOptionHTML.textContent = subject.name;
-                if(subject.name === relationship.name){
-                    subjectOptionHTML.selected = true;
+                if (subject.name === relationship.name) {
+                    subjectOptionHTML.defaultSelected = true;
                 }
                 subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectOptionHTML);
             }
@@ -643,7 +665,32 @@ function showAllRelationshipData() {
     });
 
     totalHoursHTML.textContent = totalHours;
+    checkRelationshipHours(totalHours);
 }
+
+
+/**
+ * Comprueba si las horas semanales son menores o mayores de 18 y da el aviso correspondiente
+ * @return {void}
+ */
+function checkRelationshipHours(totalHours) {
+    if (totalHours > TOTAL_HOURS_LIMIT) {
+        totalHoursHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.textContent = "Límite de 18 horas semanales superado. Por favor, edite o elimine algún módulo";
+    }
+    else if (totalHours < TOTAL_HOURS_LIMIT) {
+        totalHoursHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.classList.add("text-danger", "fw-bold");
+        hoursWarningHTML.textContent = "Aún se encuentra por debajo de las 18 horas. Por favor, edite o añada algún módulo";
+    }
+    else {
+        totalHoursHTML.classList.add("text-success", "fw-bold");
+        hoursWarningHTML.classList.add("text-success", "fw-bold");
+        hoursWarningHTML.textContent = "Ha llegado a las 18 horas exactas. Ya puede dejar de editar, eliminar o añadir módulos";
+    }
+}
+
 
 
 /**
@@ -662,7 +709,7 @@ function showTeacherData(teacherIndex) {
     let currentDate = new Date();
     let currentMonth = currentDate.getMonth() + 1;
 
-    if(currentMonth >= 9 && currentMonth <= 12){
+    if (currentMonth >= 9 && currentMonth <= 12) {
         let year1 = currentDate.getFullYear();
         let year2 = year1 + 1;
 

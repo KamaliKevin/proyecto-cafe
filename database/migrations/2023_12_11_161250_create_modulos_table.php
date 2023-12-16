@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('cod');
             $table->string('materia');
+            $table->string('horas')->default('0');
             
             $table->unsignedBigInteger('curso_id')->foreign('curso_id')->references('id')->on('cursos');
             $table->unsignedBigInteger('especialidad_id')->foreign('especialidad_id')->references('id')->on('especialidads');
