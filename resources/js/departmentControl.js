@@ -119,11 +119,11 @@ function showAllScheduleData() {
  * @return {object[]} Arreglo de objetos con datos relacionales
  */
 function getAllScheduleData(departmentIndex) {
-    let filteredTeachers = teachers.filter(teacher => teacher.departmentIndex === departmentIndex);
+    let filteredTeachers = getAllTeacherData().filter(teacher => teacher.departamento_id - 1 === departmentIndex);
     let filteredData = [];
 
     for(let i = 0; i < filteredTeachers.length; i++){
-        let relationshipData = getAllRelationshipData(i);
+        let relationshipData = getAllDepartmentRelationshipData(i);
         relationshipData.ref = i + 1;
         relationshipData.teacherName = filteredTeachers[i].firstName + " " + filteredTeachers[i].lastName;
         filteredData.push(relationshipData);
@@ -138,8 +138,8 @@ function getAllScheduleData(departmentIndex) {
  * @param {number} teacherIndex Índice del profesor/a
  * @return {object} Objetos con subobjetos con datos relacionales
  */
-function getAllRelationshipData(teacherIndex) {
-    let filteredData = subjects.filter(subject => subject.teacherIndex === teacherIndex);
+function getAllDepartmentRelationshipData(teacherIndex) {
+    let filteredData = getAllSubjectData().filter(subject => subject.user_id - 1 === teacherIndex);
 
     return filteredData.reduce((acc, relationship, index) => {
         const {courseIndex, specialtyIndex, teacherIndex, ...rest} = relationship;

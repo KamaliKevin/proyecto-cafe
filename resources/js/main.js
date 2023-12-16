@@ -1,12 +1,14 @@
 // ================== CONSTANTES ===================
-const TEACHER_INDEX = getTeacherIndex("Daniel", "Rodríguez Ravelo"); // Índice del profesor/a
-const TEACHER_SPECIALTY_INDEX = getTeacherData(TEACHER_INDEX).specialtyIndex;
-const TEACHER_DEPARTMENT_INDEX = getTeacherData(TEACHER_INDEX).departmentIndex;
+const TEACHER_INDEX = @json($userID); // Índice del profesor/a
+// NOTA A BORRAR: Al parecer, se pueden pasar variables de una vista Blade a un script de JS con la directiva @json.
+// Se asume que la variable "$userID" se pasa a la vista "teacher.blade.php"
+const TEACHER_SPECIALTY_INDEX = getTeacherData(TEACHER_INDEX).especialidad_id - 1;
+const TEACHER_DEPARTMENT_INDEX = getTeacherData(TEACHER_INDEX).departamento_id - 1;
 const TOTAL_HOURS_LIMIT = 18; // Límite de horas totales a intentar no superar por parte del profesor/a
 const DEFAULT_SUBJECT_OPTION = "-- Elija un módulo --";
 
 // ================== VARIABLES ===================
-let currentRelationshipData = getAllRelationshipData(TEACHER_INDEX); // Arreglo de objectos de los módulos relacionados
+let currentRelationshipData = getAllRelationshipData(TEACHER_INDEX); // Arreglo de objetos de los módulos relacionados
 
 
 // ================== REFERENCIAS HTML ===================
@@ -25,7 +27,6 @@ let hoursWarningHTML = document.getElementById("hoursWarning"); // Aviso de hora
 
 // ================== ESTADO INICIAL ===================
 showTeacherData(TEACHER_INDEX);
-showAllRelationshipData();
 createAddSubjectBtn();
 
 
@@ -90,7 +91,7 @@ function saveEditRelationshipData(relationshipRef) {
 
     let originalRelationshipData = getRelationshipData(getRelationshipIndex(relationshipRef));
     let originalSubjectIndex = getSubjectIndex(originalRelationshipData.name); // index de modulo original
-    deleteRelationshipData(originalSubjectIndex);
+    // deleteRelationshipData(originalSubjectIndex);
 
     let newSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value); // index del modulo nuevo
 
@@ -105,8 +106,8 @@ function saveEditRelationshipData(relationshipRef) {
     specificSubjectFields.editBtnHTML.innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Editar módulo";
     specificSubjectFields.deleteBtnHTML.innerHTML = "<i class='fa-solid fa-trash'></i> Eliminar módulo";
 
-    setRelationshipData(newSubjectIndex, TEACHER_INDEX,
-        specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
+    // setRelationshipData(newSubjectIndex, TEACHER_INDEX,
+    //    specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
 
     updateAllRelationshipData(TEACHER_INDEX);
 }
@@ -177,7 +178,7 @@ function removeRelationshipData(relationshipRef){
 
     specificSubjectContainerHTML.remove();
 
-    deleteRelationshipData(specificSubjectIndex);
+    // deleteRelationshipData(specificSubjectIndex);
     updateAllRelationshipData(TEACHER_INDEX, true);
 }
 
@@ -270,8 +271,8 @@ function saveAddRelationshipData(relationshipRef) {
         });
         */
 
-        setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
-            specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
+        //setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
+        //    specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
         updateAllRelationshipData(TEACHER_INDEX, true);
 
         specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
@@ -358,7 +359,7 @@ function createAddRelationshipDataForm() {
 
 
     // Filtrar las opciones a la hora de añadir un módulo:
-    let filteredSubjects = subjects.filter(subject => subject.specialtyIndex === TEACHER_SPECIALTY_INDEX);
+    let filteredSubjects = getAllSubjectData().filter(subject => subject.especialidad_id - 1 === TEACHER_SPECIALTY_INDEX);
     let subjectNames = filteredSubjects.map(subject => subject.name);
     let relationshipNames = currentRelationshipData.map(relationship => relationship.name);
     let relationshipNamesSet = new Set(relationshipNames);
@@ -438,27 +439,51 @@ function getRelationshipIndex(relationshipRef) {
  * @param {number} teacherIndex Índice del profesor/a
  * @return {object[]} Arreglo de objetos con datos relacionales
  */
-function getAllRelationshipData(teacherIndex) {
-    let count = 1;
-    let filteredData = subjects.filter(subject => subject.teacherIndex === teacherIndex);
-    return filteredData.map(relationship => {
-        const {courseIndex, specialtyIndex, teacherIndex, ...rest} = relationship;
-        let courseData = getCourseData(courseIndex);
-        return {
-            ...rest,
-            ref: count++,
-            course: {
-                index: courseIndex,
-                name: courseData.name,
-                grade: courseData.grade,
-                shiftTime: courseData.shiftTime
-            },
-            specialty: {
-                index: specialtyIndex,
-                name: getSpecialtyData(specialtyIndex).name
+async function getAllRelationshipData(teacherIndex) {
+    await fetch('http://localhost:8000/api/modulos/profesor/' + (teacherIndex + 1))
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
             }
-        };
-    });
+            return response.json();
+        })
+        .then(data => {
+            data.data.forEach((data, i) => {
+                let smallData = {}
+                smallData.name = data.materia;
+                smallData.course = {
+                    index: data.curso.id - 1,
+                    grade: data.curso.grado,
+                    name: data.curso.name,
+                    shiftTime: data.curso.turno
+                }
+
+                // smallData.codigo = data.cod;
+                smallData.classroom = []
+                data.aulas.forEach(classroom => {
+                    smallData.classroom.push(classroom.name)
+                });
+                smallData.hours = data.hours;
+
+                smallData.specialty = {
+                    index: data.especialidad.id - 1,
+                    name: data.especialidad.name
+                }
+                //smallData.teacherIndex = data.user.id - 1;
+                smallData.distribution = data.distribution;
+                smallData.comments = data.comments;
+                smallData.ref = i + 1;
+                currentRelationshipData = [];
+                currentRelationshipData.push(smallData);
+                // subjects = currentRelationshipData;
+            });
+
+            showAllRelationshipData();
+        })
+        .catch(error => {
+            // Handle errors during the fetch
+            console.error('Fetch error:', error);
+        });
 }
 
 
@@ -538,7 +563,7 @@ function toggleRelationshipData(relationshipRef) {
     }
     else {
         let newSubjectData = getSubjectData(getSubjectIndex(specificSubjectFields.nameHTML.value));
-        let newCourseData = getCourseData(newSubjectData.courseIndex);
+        let newCourseData = getCourseData(newSubjectData.curso_id - 1);
 
         specificSubjectFields.nameHTML.value = newSubjectData.name;
         specificSubjectFields.shiftTimeHTML.value = newCourseData.shiftTime;
@@ -568,13 +593,6 @@ function showAllRelationshipData() {
             <div id="subject${relationship.ref}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
                 <div class="accordion-body">
                     <form id="subject${relationship.ref}Form">
-                        <div class="mb-3">
-                            <label for="subject${relationship.ref}Name" class="form-label">Módulo</label>
-                            <select class="form-select" id="subject${relationship.ref}Name" 
-                            name="subject${relationship.ref}Name" disabled>
-                                <!-- Aquí van todos los nombres de módulos -->
-                            </select>
-                        </div>
                         <div class="mb-3">
                             <label for="subject${relationship.ref}ShiftTime" class="form-label">Turno</label>
                             <input type="text" class="form-control" id="subject${relationship.ref}ShiftTime" 
@@ -621,7 +639,7 @@ function showAllRelationshipData() {
             </div>
         </div>`;
 
-
+        /*
         subjects.forEach(subject => {
             if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
                 let subjectOptionHTML = document.createElement("option");
@@ -633,6 +651,7 @@ function showAllRelationshipData() {
                 subjectContainerHTML.querySelector(`#subject${relationship.ref}Name`).appendChild(subjectOptionHTML);
             }
         });
+         */
 
         totalHours += relationship.hours;
     });
@@ -644,6 +663,7 @@ function showAllRelationshipData() {
 
 /**
  * Comprueba si las horas semanales son menores o mayores de 18 y da el aviso correspondiente
+ * @param {number} totalHours Horas semanales a comprobar
  * @return {void}
  */
 function checkRelationshipHours(totalHours) {
@@ -674,7 +694,7 @@ function checkRelationshipHours(totalHours) {
 function showTeacherData(teacherIndex) {
     let data = getTeacherData(teacherIndex);
 
-    firstNameHTML.value = data.firstName;
+    firstNameHTML.value = data.name;
     lastNameHTML.value = data.lastName;
     departmentHTML.value = getDepartmentData(TEACHER_DEPARTMENT_INDEX).name;
     specialtyHTML.value = getSpecialtyData(TEACHER_SPECIALTY_INDEX).name;

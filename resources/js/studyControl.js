@@ -185,11 +185,11 @@ function showAllStudyNames() {
 function getAllStudyData() {
     let filteredData = [];
 
-    for(let i = 0; i < teachers.length; i++){
-        let relationshipData = getAllRelationshipData(i);
+    for(let i = 0; i < getAllTeacherData().length; i++){
+        let relationshipData = getAllDepartmentRelationshipData(i);
         relationshipData.ref = i + 1;
-        relationshipData.teacherName = teachers[i].firstName + " " + teachers[i].lastName;
-        relationshipData.departmentName = getDepartmentData(teachers[i].departmentIndex).name;
+        relationshipData.teacherName = getAllTeacherData()[i].name + " " + getAllTeacherData()[i].lastName;
+        relationshipData.departmentName = getDepartmentData(getAllTeacherData()[i].departamento_id - 1).name;
         filteredData.push(relationshipData);
     }
 
