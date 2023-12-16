@@ -22,3 +22,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+});

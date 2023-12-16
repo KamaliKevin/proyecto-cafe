@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+
 class LoginRegisterController extends Controller
 {
-     /**
+    /**
      * Register a new user.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -23,7 +24,7 @@ class LoginRegisterController extends Controller
             'password' => 'required|string|min:8|confirmed'
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Validation Error!',
@@ -62,28 +63,28 @@ class LoginRegisterController extends Controller
             'password' => 'required|string'
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Validation Error!',
                 'data' => $validate->errors(),
-            ], 403);  
+            ], 403);
         }
 
         // Check email exist
         $user = User::where('email', $request->email)->first();
 
         // Check password
-        if(!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Invalid credentials'
-                ], 401);
+            ], 401);
         }
 
         $data['token'] = $user->createToken($request->email)->plainTextToken;
         $data['user'] = $user;
-        
+
         $response = [
             'status' => 'success',
             'message' => 'User is logged in successfully.',
@@ -91,7 +92,7 @@ class LoginRegisterController extends Controller
         ];
 
         return response()->json($response, 200);
-    } 
+    }
 
     /**
      * Log out the user from application.
@@ -105,6 +106,6 @@ class LoginRegisterController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'User is logged out successfully'
-            ], 200);
-    }    
+        ], 200);
+    }
 }
