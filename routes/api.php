@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\ModuloController;
 use App\Http\Controllers\Auth\LoginRegisterController;
+use App\Http\Controllers\Api\V1\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -36,6 +37,8 @@ Route::controller(ModuloController::class)->group(function() {
     Route::get('/modulos/{id}', 'show');
     Route::get('/modulos/profesor/{id}', 'indexTeacher');
 });
+
+Route::apiResource('users', UserController::class);
 
 // Protected routes of product and logout
 Route::middleware('auth:sanctum')->group( function () {
