@@ -49,6 +49,17 @@
                 <p class="mb-3">Total del horas: <span id="totalHours"></span></p>
                 <p class="mb-5" id="hoursWarning"></p>
 
+                <!-- Texto de ayuda -->
+                <div class="alert alert-warning mb-5">
+                    <h5><i class="fa-solid fa-circle-info"></i> Información de ayuda:</h5>
+                    <ul>
+                        <li>El profesorado tutor tiene que impartir al menos un módulo del curso que tutoriza.</li>
+                        <li>En ningún caso se debe superar las 24 horas semanales de permanencia en el centro.</li>
+                        <li>El aula o taller será fijado por el departamento y no podrá modificarse posteriormente.</li>
+                        <li>No se debe concentrar el horario en una modalidad o grupo.</li>
+                    </ul>
+                </div>
+
                 <!-- Módulos nuevos -->
                 <div class="mb-3" id="addSubjectContainer">
                     <!-- Aquí se pondría un formulario dinámico cuando se añade un módulo nuevo -->

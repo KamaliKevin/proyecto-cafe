@@ -205,13 +205,6 @@ function saveAddRelationshipData(relationshipRef) {
                 <div class="accordion-body">
                     <form id="subject${relationshipRef}Form">
                         <div class="mb-3">
-                            <label for="subject${relationshipRef}Name" class="form-label">Módulo</label>
-                            <select class="form-select" id="subject${relationshipRef}Name" 
-                            name="subject${relationshipRef}Name" disabled>
-                                <!-- Aquí van todos los nombres de módulos -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
                             <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
                             <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
                             name="subject${relationshipRef}ShiftTime" value="${specificSubjectFields.shiftTimeHTML.value}" disabled>
@@ -238,8 +231,10 @@ function saveAddRelationshipData(relationshipRef) {
                         </div>
                         <div class="mb-3">
                             <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
-                            <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
-                            name="subject${relationshipRef}Distribution" value="${specificSubjectFields.distributionHTML.value}" disabled>
+                            <select type="text" class="form-select" id="subject${specificSubjectFields.distributionHTML.value}Distribution" 
+                            name="subject${relationshipRef}Distribution" disabled>
+                                <!-- Aquí van las diferentes posibles combinaciones de horas por día -->
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
@@ -270,6 +265,14 @@ function saveAddRelationshipData(relationshipRef) {
             }
         });
         */
+
+        // Rellenar la selección de horas por día:
+        generateDistributionCombinations(specificSubjectFields.hoursHTML.value).forEach(combination => {
+            let distributionOptionHTML = document.createElement("option");
+            distributionOptionHTML.value = combination;
+            distributionOptionHTML.textContent = combination;
+            subjectContainerHTML.querySelector(`#subject${relationshipRef}Distribution`).appendChild(distributionOptionHTML);
+        });
 
         //setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
         //    specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
@@ -341,8 +344,10 @@ function createAddRelationshipDataForm() {
             </div>
             <div class="mb-3">
                 <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
-                <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
-                name="subject${relationshipRef}Distribution">
+                <select type="text" class="form-select" id="subject${relationshipRef}Distribution" 
+                name="subject${relationshipRef}Distribution" disabled>
+                    <!-- Aquí van las diferentes posibles combinaciones de horas por día -->
+                </select>
             </div>
             <div class="mb-3">
                 <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
@@ -370,6 +375,14 @@ function createAddRelationshipDataForm() {
         subjectOptionHTML.value = name;
         subjectOptionHTML.textContent = name;
         addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+    });
+
+    // Rellenar la selección de horas por día:
+    generateDistributionCombinations(addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Hours`).value).forEach(combination => {
+        let distributionOptionHTML = document.createElement("option");
+        distributionOptionHTML.value = combination;
+        distributionOptionHTML.textContent = combination;
+        subjectContainerHTML.querySelector(`#subject${relationshipRef}Distribution`).appendChild(distributionOptionHTML);
     });
 
 
@@ -620,8 +633,10 @@ function showAllRelationshipData() {
                         </div>
                         <div class="mb-3">
                             <label for="subject${relationship.ref}Distribution" class="form-label">Distribución semanal</label>
-                            <input type="text" class="form-control" id="subject${relationship.ref}Distribution" 
-                            name="subject${relationship.ref}Distribution" value="${relationship.distribution}" disabled>
+                            <select type="text" class="form-select" id="subject${relationship.ref}Distribution" 
+                            name="subject${relationship.ref}Distribution" disabled>
+                                <!-- Aquí van las diferentes posibles combinaciones de horas por día -->
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="subject${relationship.ref}Comments" class="form-label">Comentarios</label>
@@ -652,6 +667,17 @@ function showAllRelationshipData() {
             }
         });
          */
+
+        // Rellenar la selección de horas por día:
+        generateDistributionCombinations(relationship.hours).forEach(combination => {
+            let distributionOptionHTML = document.createElement("option");
+            distributionOptionHTML.value = combination;
+            distributionOptionHTML.textContent = combination;
+            if(combination === relationship.distribution){
+                distributionOptionHTML.defaultSelected = true;
+            }
+            subjectContainerHTML.querySelector(`#subject${relationship.ref}Distribution`).appendChild(distributionOptionHTML);
+        });
 
         totalHours += relationship.hours;
     });
@@ -714,4 +740,31 @@ function showTeacherData(teacherIndex) {
 
         schoolYearHTML.value = `${year1}-${year2}`;
     }
+}
+
+/**
+ * Genera combinaciones posibles para las distribuciones semanales de horas según las horas
+ * a la semana del módulo
+ * @param {number} targetNumber Horas semanales del módulo
+ * @return {string[]} Arreglo de cadenas de texto con combinaciones posibles
+ */
+function generateDistributionCombinations(targetNumber) {
+    const combinations = [];
+
+    function generate(currentCombination, remainingTarget, maxNumbers) {
+        if (remainingTarget === 0) {
+            combinations.push(currentCombination.slice());
+            return;
+        }
+
+        for (let i = 1; i <= 3 && i <= remainingTarget && currentCombination.length < maxNumbers; i++) {
+            currentCombination.push(i);
+            generate(currentCombination, remainingTarget - i, maxNumbers);
+            currentCombination.pop();
+        }
+    }
+
+    generate([], targetNumber, 5);
+
+    return combinations.map(combination => combination.join('+'));
 }
