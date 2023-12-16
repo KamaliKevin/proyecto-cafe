@@ -42,8 +42,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show($id)
     {
+        $user = User::where('id',$id)->with('especialidad')->with('departamento')->get();
         return response()->json($user, 200);
     }
 

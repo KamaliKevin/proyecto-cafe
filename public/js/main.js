@@ -450,8 +450,8 @@ async function getAllRelationshipData() {
         })
         .then(data => {
             console.log(data);
-            if(data.status == "failed"){
-                
+            if (data.status == "failed") {
+
             }
             data.data.forEach((data, i) => {
                 let smallData = {}
@@ -703,13 +703,30 @@ function checkRelationshipHours(totalHours) {
  * @param {number} teacherIndex Índice de un profesor/a
  * @return {void}
  */
-function showTeacherData(teacherIndex) {
-    let data = getTeacherData(teacherIndex);
+async function showTeacherData(teacherIndex) {
+    console.log("AAAAAAAAAAAAAAAAAAAA");
 
-    firstNameHTML.value = data.firstName;
-    lastNameHTML.value = data.lastName;
-    departmentHTML.value = getDepartmentData(TEACHER_DEPARTMENT_INDEX).name;
-    specialtyHTML.value = getSpecialtyData(TEACHER_SPECIALTY_INDEX).name;
+    const userID = localStorage.getItem('userID');
+    await fetch('http://localhost:8000/api/users/' + userID)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            data = data[0];
+            console.log(data);
+            firstNameHTML.value = data.name;
+            lastNameHTML.value = data.lastName = "oops";
+            departmentHTML.value = data.departamento.name;
+            specialtyHTML.value = data.especialidad.name;
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+
+
 
     let currentDate = new Date();
     let currentMonth = currentDate.getMonth() + 1;
