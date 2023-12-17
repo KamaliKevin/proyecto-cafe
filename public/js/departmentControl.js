@@ -164,17 +164,6 @@ async function getAllScheduleData(departmentIndex) {
         .catch(error => {
             console.error('Fetch error:', error);
         });
-
-    let filteredTeachers = teachers.filter(teacher => teacher.departmentIndex === departmentIndex);
-
-    // for(let i = 0; i < filteredTeachers.length; i++){
-    //     let relationshipData = getAllRelationshipData(i);
-    //     relationshipData.ref = i + 1;
-    //     relationshipData.teacherName = filteredTeachers[i].firstName + " " + filteredTeachers[i].lastName;
-    //     filteredData.push(relationshipData);
-    // }
-    console.log("Filtered");
-    console.log(filteredData);
     return filteredData;
 }
 
