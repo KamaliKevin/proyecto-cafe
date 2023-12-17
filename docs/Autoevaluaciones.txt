@@ -1,0 +1,15 @@
+Autoevaluaciones:
+
+- Kevin Bruno Geisenhof Sáez:
+"Autoevaluación 5/10
+
+El proyecto cumple con los requisitos mínimos de funcionalidad además de una memoria técnica, a pesar de la seguridad vulnerable. En el caso personal, se ha ido desarrollando el front-end para la app, el cuál demostró ser eficiente a la hora de conseguir datos de la API para comunicarse con la base de datos, aunque careciendo de más consultas necesarias"
+
+
+
+- Nacho Revilla Italiyankina
+"Autoevaluación 5/10
+
+Considero que, dadas las circunstancias, podría haber logrado más en el tiempo asignado. Sin embargo, me encontré con diversos obstáculos, como la transición del sistema de inicio de sesión y dificultades con las funciones asíncronas. El estado actual del backend tiene margen para mejorar significativamente, especialmente en cuanto a la falta de una API que no devuelva una única super variable con todos los datos o la falta de seguridad en las APIs existentes.
+
+En cuanto al frontend, podría incorporar más funcionalidades, y aún hay funciones sin utilizar con la esperanza de que se aprovechen en el futuro."
