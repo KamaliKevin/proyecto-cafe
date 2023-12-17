@@ -132,9 +132,6 @@ async function getAllScheduleData(departmentIndex) {
             return response.json();
         })
         .then(data => {
-            console.log("Le data");
-            console.log(data);
-            console.log("not le data");
             data.user.forEach(user => {
                 let thing = {};
 
@@ -142,21 +139,23 @@ async function getAllScheduleData(departmentIndex) {
                 thing.teacherLastName = user.lastName;
                 thing.teacherSubjects = [];
                 user.modulos.forEach(modulo => {
-                    let temporal = {};
+                    let data = {
+                        name: modulo.materia,
+                        comments: modulo.observations,
+                        hours: modulo.hours,
+                        weekDistribution: modulo.weekDistribution,
+                        course: {
+                            grade: modulo.curso.grade,
+                            name: modulo.curso.name,
+                            shiftTime: modulo.curso.turno
+                        }
+                    };
                     if (modulo.aulas != null && modulo.aulas.length != 0) {
-                        temporal.classroom = modulo.aulas[0].name;
-                    }else{
-                        temporal.classroom = "";
+                        data.classroom = modulo.aulas[0].name;
+                    } else {
+                        data.classroom = "";
                     }
-                    temporal.comments = modulo.observations;
-                    temporal.course = {};
-                    temporal.course.grade = modulo.curso.grade;
-                    temporal.course.name = modulo.curso.name;
-                    temporal.course.shiftTime = modulo.curso.turno;
-                    temporal.weekDistribution = modulo.weekDistribution;
-                    temporal.hours = modulo.hours;
-                    temporal.name = modulo.materia;
-                    thing.teacherSubjects.push(temporal);
+                    thing.teacherSubjects.push(data);
                 });
                 filteredData.push(thing);
             });

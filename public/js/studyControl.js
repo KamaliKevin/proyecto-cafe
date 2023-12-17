@@ -37,7 +37,7 @@ function showAllHoursPerShiftTime() {
             </ul>
         </div>`;
 
-        if(classroom.morningHours + classroom.eveningHours > HOUR_LIMIT_PER_CLASSROOM){
+        if (classroom.morningHours + classroom.eveningHours > HOUR_LIMIT_PER_CLASSROOM) {
             let totalHoursHTML = studyDataHTML.querySelector(`#classroom${classroom.classroom}totalHours`);
             console.log(totalHoursHTML);
             totalHoursHTML.classList.add("fw-bold", "text-danger");
@@ -106,9 +106,9 @@ function getAllHoursPerShiftTime() {
 function toggleStudyData() {
     let allStudyDataNames = Array.from(departmentsHTML.children);
     allStudyDataNames.forEach(child => {
-        if(child.selected === true){
+        if (child.selected === true) {
             studyDataHTML.innerHTML = "";
-            showStudyData(child.value);
+            showStudyData(child.getAttribute('data-id'));
         }
     });
 
@@ -121,10 +121,11 @@ function toggleStudyData() {
  * @param {string} departmentName Nombre del departamento
  * @return {void}
  */
-function showStudyData(departmentName) {
+async function showStudyData(departmentID) {
     studyDataHTML.innerHTML = "";
 
-    let filteredStudyData = getAllStudyData().filter(study => study.departmentName === departmentName);
+    let filteredStudyData = await getAllScheduleData(departmentID);
+    console.log(filteredStudyData);
     filteredStudyData.forEach(study => {
         studyDataHTML.innerHTML += `<div class="mb-5" id="teacher${study.ref}Schedule">
             <p class="fw-bold" id="teacher${study.ref}Name">${study.teacherName}:</p>
@@ -145,19 +146,18 @@ function showStudyData(departmentName) {
             </table>
         </div>`;
 
-        for (const [key, value] of Object.entries(study)) {
-            if(RELATIONSHIP_PROPERTY_PATTERN.test(key)){
-                let row = document.createElement("tr");
-                row.innerHTML = `<td>${value.course.shiftTime}</td>
-                <td>${value.course.grade + " " + value.course.name}</td>
-                <td>${value.name}</td>
-                <td>${value.hours}</td>
-                <td>${value.distribution}</td>
-                <td>${value.classroom}</td>`;
 
-                studyDataHTML.querySelector(`#teacher${study.ref}Rows`).appendChild(row);
-            }
-        }
+        study.teacherSubjects.forEach(element => {
+            let row = document.createElement("tr");
+            row.innerHTML = `<td>${element.course.shiftTime}</td>
+                <td>${element.course.grade + " " + element.course.name}</td>
+                <td>${element.name}</td>
+                <td>${element.hours}</td>
+                <td>${element.weekDistribution}</td>
+                <td>${element.classroom}</td>`;
+
+            studyDataHTML.querySelector(`#teacher${study.ref}Rows`).appendChild(row);
+        });
     });
 }
 
@@ -166,14 +166,27 @@ function showStudyData(departmentName) {
  * Rellena la selección de departamentos con los nombres correspondientes
  * @return {void}
  */
-function showAllStudyNames() {
-    let allStudyData = getAllStudyData();
-    allStudyData.forEach(study => {
-        let studyOptionHTML = document.createElement("option");
-        studyOptionHTML.value = study.departmentName;
-        studyOptionHTML.textContent = study.departmentName;
-        departmentsHTML.appendChild(studyOptionHTML);
-    });
+async function showAllStudyNames() {
+    await fetch('http://localhost:8000/api/departamentos')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            data.data.forEach(department => {
+                let studyOptionHTML = document.createElement("option");
+                studyOptionHTML.value = department.name;
+                studyOptionHTML.textContent = department.name;
+                studyOptionHTML.setAttribute('data-id', department.id);
+                departmentsHTML.appendChild(studyOptionHTML);
+            });
+
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
 }
 
 
@@ -185,7 +198,7 @@ function showAllStudyNames() {
 function getAllStudyData() {
     let filteredData = [];
 
-    for(let i = 0; i < teachers.length; i++){
+    for (let i = 0; i < teachers.length; i++) {
         let relationshipData = getAllRelationshipData(i);
         relationshipData.ref = i + 1;
         relationshipData.teacherName = teachers[i].firstName + " " + teachers[i].lastName;
@@ -193,5 +206,7 @@ function getAllStudyData() {
         filteredData.push(relationshipData);
     }
 
+    console.log("Filtered data");
+    console.log(filteredData);
     return filteredData;
 }
