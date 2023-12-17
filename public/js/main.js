@@ -197,99 +197,45 @@ async function removeRelationshipData(relationshipRef) {
  * @param {number} relationshipRef Referencia numérica del módulo nuevo
  * @return {void}
  */
-function saveAddRelationshipData(relationshipRef) {
-    let specificSubjectFields = getRelationshipFields(relationshipRef);
+async function saveAddRelationshipData(relationshipRef) {
+    let specificSubjectFields = await getRelationshipFields(relationshipRef);
+    console.log(relationshipRef);
     console.log("specificSubjectFields");
     console.log(specificSubjectFields);
-    // Restringir guardar un módulo cuando los campos estén vacíos:
-    if (specificSubjectFields.nameHTML.value !== DEFAULT_SUBJECT_OPTION) {
-        subjectContainerHTML.innerHTML += `<div class="accordion-item" id="subject${relationshipRef}Container">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#subject${relationshipRef}Data" aria-expanded="false" 
-                        aria-controls="subject${relationshipRef}Data" id="subject${relationshipRef}Title">
-                    ${specificSubjectFields.nameHTML.value}
-                </button>
-            </h2>
-            <div id="subject${relationshipRef}Data" class="accordion-collapse collapse" data-bs-parent="#subjectContainer">
-                <div class="accordion-body">
-                    <form id="subject${relationshipRef}Form">
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}Name" class="form-label">Módulo</label>
-                            <select class="form-select" id="subject${relationshipRef}Name" 
-                            name="subject${relationshipRef}Name" disabled>
-                                <!-- Aquí van todos los nombres de módulos -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
-                            <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
-                            name="subject${relationshipRef}ShiftTime" value="${specificSubjectFields.shiftTimeHTML.value}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}Grade" class="form-label">Grado</label>
-                            <input type="text" class="form-control" id="subject${relationshipRef}Grade" 
-                            name="subject${relationshipRef}Grade" value="${specificSubjectFields.gradeHTML.value}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}CourseName" class="form-label">Ciclo</label>
-                            <input type="text" class="form-control" id="subject${relationshipRef}CourseName" 
-                            name="subject${relationshipRef}CourseName" value="${specificSubjectFields.courseNameHTML.value}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}Classroom" class="form-label">Aula</label>
-                            <input type="text" class="form-control" id="subject${relationshipRef}Classroom" 
-                            name="subject${relationshipRef}Classroom" value="${specificSubjectFields.classroomHTML.value}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}Hours" class="form-label">Horas semanales</label>
-                            <input type="text" class="form-control" id="subject${relationshipRef}Hours" 
-                            name="subject${relationshipRef}Hours" value="${specificSubjectFields.hoursHTML.value}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
-                            <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
-                            name="subject${relationshipRef}Distribution" value="${specificSubjectFields.distributionHTML.value}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
-                            <textarea class="form-control" id="subject${relationshipRef}Comments" 
-                            name="subject${relationshipRef}Comments" rows="5" disabled>${specificSubjectFields.commentsHTML.value}</textarea>
-                        </div>
-                        <button type="button" class="btn btn-warning" id="subject${relationshipRef}EditBtn">
-                            <i class="fa-solid fa-pen-to-square"></i> Editar módulo
-                        </button>
-                        <button type="button" class="btn btn-danger" id="subject${relationshipRef}DeleteBtn">
-                            <i class="fa-solid fa-trash"></i> Eliminar módulo
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>`;
 
-        /*
-        subjects.forEach(subject => {
-            if(subject.specialtyIndex === TEACHER_SPECIALTY_INDEX){
-                let subjectOptionHTML = document.createElement("option");
-                subjectOptionHTML.value = subject.name;
-                subjectOptionHTML.textContent = subject.name;
-                if(subject.name === specificSubjectFields.nameHTML.value){
-                    subjectOptionHTML.defaultSelected = true;
-                }
-                subjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+    const userID = localStorage.getItem('userID');
+    console.log(specificSubjectFields.distributionHTML);
+    const postData = {
+        moduloID: relationshipRef,
+        teachID: userID,
+        weekDistribution: specificSubjectFields.distributionHTML.value,
+        observations: specificSubjectFields.commentsHTML.value,
+    };
+
+    await fetch('http://localhost:8000/api/modulos/addteacher/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // You may include additional headers if needed
+        },
+        body: JSON.stringify(postData),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+            return response.json();
+        })
+        .then(data => {
+            addSubjectContainerHTML.innerHTML = "";
+            subjectContainerHTML.innerHTML = "";
+            createAddSubjectBtn();
+            currentRelationshipData = [];
+            getAllRelationshipData();
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
         });
-        */
-
-        setRelationshipData(getSubjectIndex(specificSubjectFields.nameHTML.value), TEACHER_INDEX,
-            specificSubjectFields.distributionHTML.value, specificSubjectFields.commentsHTML.value);
-        updateAllRelationshipData(TEACHER_INDEX, true);
-
-        specificSubjectFields.nameHTML.removeEventListener("change", specificSubjectFields.nameHTML.customToggleRelationShipDataRef);
-        delete specificSubjectFields.nameHTML.customToggleRelationShipDataRef;
-
-        addSubjectContainerHTML.innerHTML = "";
-    }
 }
 
 
@@ -358,11 +304,6 @@ async function createAddRelationshipDataForm() {
     let subjectNameHTML = addSubjectContainerHTML.querySelector(`#subjectChooseName`);
     subjectNameHTML.addEventListener("change", () => toggleRelationshipData());
     subjectNameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
-
-
-
-
-
 }
 
 
@@ -456,7 +397,6 @@ async function getAllRelationshipData() {
                 data.aulas.forEach(classroom => {
                     smallData.classroom.push(classroom.name)
                 });
-                smallData.classroom = "A";
                 smallData.hours = data.hours;
 
                 smallData.specialty = {
@@ -465,8 +405,7 @@ async function getAllRelationshipData() {
                 }
                 //smallData.teacherIndex = data.user.id - 1;
                 smallData.distribution = data.weekDistribution;
-                // smallData.comments = data.comments;
-                smallData.comments = "AA";
+                smallData.comments = data.observations;
                 currentRelationshipData.push(smallData);
                 subjects = currentRelationshipData;
             });

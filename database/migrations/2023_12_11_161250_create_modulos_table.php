@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('cod');
             $table->string('materia');
+            $table->string('observations')->default('Ninguna Observacion');
             $table->string('weekDistribution')->default('0');
             $table->unsignedInteger('hours')->default(0);
             
