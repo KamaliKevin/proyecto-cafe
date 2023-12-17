@@ -10,6 +10,12 @@ class Curso extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'turno',
+        'grade'
+    ];
+
     public function modulos()
     {
         return $this->hasMany(Modulo::class);

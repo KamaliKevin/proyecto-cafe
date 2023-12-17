@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('name');
-            $table->string('grado')->default("1º");
+            $table->string('grade')->default("1º");
             $table->string('turno');
         });
     }

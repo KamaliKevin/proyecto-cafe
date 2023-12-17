@@ -30,7 +30,7 @@ async function showAllWarnedTeacherData() {
     allWarnedTeacherData.forEach(teacher => {
         if (teacher.totalHours < 18 || teacher.totalHours > 18) {
             departmentDataHTML.innerHTML += `<p>
-                <span class="fw-bold">${teacher.name}:</span> <span class="fw-bold text-danger">${teacher.totalHours} horas</span>
+                <span class="fw-bold">${teacher.name} ${teacher.lastName}:</span> <span class="fw-bold text-danger">${teacher.totalHours} horas</span>
             </p>`;
         }
     });
@@ -59,6 +59,7 @@ async function getAllWarnedTeacherData() {
             }
         });
         data.name = schedule.teacherName;
+        data.lastName = schedule.teacherLastName;
         data.totalHours = totalHours;
         allWarnedTeacherData.push(data);
     });
@@ -78,7 +79,7 @@ async function showAllScheduleData() {
         console.log("Schedule");
         console.log(schedule);
         departmentDataHTML.innerHTML += `<div class="mb-5" id="teacher${schedule.ref}Schedule">
-            <p class="fw-bold" id="teacher${schedule.ref}Name">${schedule.teacherName}:</p>
+            <p class="fw-bold" id="teacher${schedule.ref}Name">${schedule.teacherName} ${schedule.teacherLastName}:</p>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -101,7 +102,7 @@ async function showAllScheduleData() {
                 <td>${element.course.grade + " " + element.course.name}</td>
                 <td>${element.name}</td>
                 <td>${element.hours}</td>
-                <td>${element.distribution}</td>
+                <td>${element.weekDistribution}</td>
                 <td>${element.classroom}</td>`;
 
             departmentDataHTML.querySelector(`#teacher${schedule.ref}Rows`).appendChild(row);
@@ -138,16 +139,21 @@ async function getAllScheduleData(departmentIndex) {
                 let thing = {};
 
                 thing.teacherName = user.name;
+                thing.teacherLastName = user.lastName;
                 thing.teacherSubjects = [];
                 user.modulos.forEach(modulo => {
                     let temporal = {};
-                    temporal.classroom = modulo.aulas[0].name;
+                    if (modulo.aulas != null && modulo.aulas.length != 0) {
+                        temporal.classroom = modulo.aulas[0].name;
+                    }else{
+                        temporal.classroom = "";
+                    }
                     temporal.comments = modulo.observations;
                     temporal.course = {};
                     temporal.course.grade = modulo.curso.grade;
                     temporal.course.name = modulo.curso.name;
                     temporal.course.shiftTime = modulo.curso.turno;
-                    temporal.distribution = modulo.distribution;
+                    temporal.weekDistribution = modulo.weekDistribution;
                     temporal.hours = modulo.hours;
                     temporal.name = modulo.materia;
                     thing.teacherSubjects.push(temporal);
