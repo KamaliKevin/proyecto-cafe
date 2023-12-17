@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Bootstrap CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <!-- Font Awesome -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+        <!-- CSS personalizado -->
+        <link href="css/main.css" rel="stylesheet">
+
+        <title>Estudios - CIFP Majada Marcial</title>
+    </head>
+
+    <body class="palegrey-bg">
+        <div class="d-flex justify-content-center align-content-center">
+
+            <!-- Información -->
+            <div class="info-width bg-white my-5 border border-dark border-1 rounded-3" id="departmentInfo">
+                <!-- Título de la información -->
+                <div class="py-3 px-5 semiblack-bg text-white border border-dark border-3 rounded-top-3">
+                    <h4>Información de estudios</h4>
+                </div>
+
+                <!-- Logo -->
+                <div class="d-flex justify-content-center align-content-center pt-3">
+                    <div class="s-logo-width">
+                        <img src="images/logo.png" class="img-fluid" alt="Logo">
+                    </div>
+                </div>
+
+                <!-- Contenido -->
+                <div class="py-3 px-5" id="departmentContent">
+                    <!-- Opciones del / de la jefe de estudios -->
+                    <div class="d-flex justify-content-start align-content-center mb-5" id="studiesOptions">
+                        <div class="mb-3">
+                            <label for="departments" class="form-label">Elija el departamento que quiere visualizar:</label>
+                            <select id="departments" name="departments" class="form-select">
+                                <!-- Aquí irían todos los datos de todos los departamentos -->
+                                <option value="-- Elija un departamento --">-- Elija un departamento --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <button class="btn btn-primary" id="hoursPerShiftTimeBtn">
+                            Ver horas asignadas por aula (mañana y tarde)
+                        </button>
+                    </div>
+                    <div class="mb-5">
+                        <a href="schedule.html">
+                            Registrar / Comprobar mi propio horario >>
+                        </a>
+                    </div>
+
+                    <!-- Datos del departamento -->
+                    <div class="mb-5" id="studyData">
+                        <!-- Aquí van los datos de los docentes o las aulas -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Bootstrap JS -->
+        <script src="js/bootstrap.min.js"></script>
+        <!-- Especialidades -->
+        <script src="js/specialties.js"></script>
+        <!-- Departamentos -->
+        <script src="js/departments.js"></script>
+        <!-- Profesores -->
+        <script src="js/teachers.js"></script>
+        <!-- Cursos -->
+        <script src="js/courses.js"></script>
+        <!-- Módulos -->
+        <script src="js/subjects.js"></script>
+        <!-- Control de departamento -->
+        <script src="js/departmentControl.js"></script>
+        <!-- Control de estudios -->
+        <script src="js/studyControl.js"></script>
+    </body>
+</html>

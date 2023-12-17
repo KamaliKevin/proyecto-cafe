@@ -41,6 +41,7 @@ formContentHTML.addEventListener("click", function (event) {
 
 subjectContainerHTML.addEventListener("click", function (event) {
     let relationshipRef = getRelationshipRefFromEvent(event);
+    console.log(relationshipRef);
 
     if (event.target.classList.contains("btn-danger")
         && event.target.textContent.includes("Eliminar módulo")) {
@@ -190,6 +191,7 @@ function removeRelationshipData(relationshipRef) {
  */
 function saveAddRelationshipData(relationshipRef) {
     let specificSubjectFields = getRelationshipFields(relationshipRef);
+    console.log("specificSubjectFields");
     console.log(specificSubjectFields);
     // Restringir guardar un módulo cuando los campos estén vacíos:
     if (specificSubjectFields.nameHTML.value !== DEFAULT_SUBJECT_OPTION) {
@@ -302,7 +304,7 @@ async function createAddRelationshipDataForm() {
         deleteAddSubjectBtn();
     }
 
-    let relationshipRef = currentRelationshipData.length + 1;
+    let relationshipRef = 2;
     addSubjectContainerHTML.innerHTML += `
         <form class="mb-3" id="addSubjectForm">
             <h5>Ponga los datos del nuevo módulo:</h5>
