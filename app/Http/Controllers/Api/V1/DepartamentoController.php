@@ -44,7 +44,7 @@ class DepartamentoController extends Controller
      */
     public function show(Departamento $departamento)
     {
-        return response()->json(Departamento::with('user.modulos.curso')->find($departamento->id), 200);
+        return response()->json(Departamento::with('user.modulos.curso')->with('user.modulos.aulas')->find($departamento->id), 200);
     }
 
     /**

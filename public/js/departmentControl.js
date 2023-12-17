@@ -28,7 +28,7 @@ function showAllWarnedTeacherData() {
     let allWarnedTeacherData = getAllWarnedTeacherData();
 
     allWarnedTeacherData.forEach(teacher => {
-        if(teacher.totalHours < 18 || teacher.totalHours > 18){
+        if (teacher.totalHours < 18 || teacher.totalHours > 18) {
             departmentDataHTML.innerHTML += `<p>
                 <span class="fw-bold">${teacher.name}:</span> <span class="fw-bold text-danger">${teacher.totalHours} horas</span>
             </p>`;
@@ -51,7 +51,7 @@ function getAllWarnedTeacherData() {
         let data = {};
         let totalHours = 0;
         for (const [key, value] of Object.entries(schedule)) {
-            if(RELATIONSHIP_PROPERTY_PATTERN.test(key)){
+            if (RELATIONSHIP_PROPERTY_PATTERN.test(key)) {
                 totalHours += value.hours;
             }
         }
@@ -68,11 +68,12 @@ function getAllWarnedTeacherData() {
  * Enseña todos los datos de los horarios de los profesores de un departamento
  * @return {void}
  */
-function showAllScheduleData() {
+async function showAllScheduleData() {
     departmentDataHTML.innerHTML = "";
-    let allScheduleData = getAllScheduleData(DEPARTMENT_INDEX);
-
+    let allScheduleData = await getAllScheduleData(1);
     allScheduleData.forEach(schedule => {
+        console.log("Schedule");
+        console.log(schedule);
         departmentDataHTML.innerHTML += `<div class="mb-5" id="teacher${schedule.ref}Schedule">
             <p class="fw-bold" id="teacher${schedule.ref}Name">${schedule.teacherName}:</p>
             <table class="table table-bordered">
@@ -91,20 +92,18 @@ function showAllScheduleData() {
                 </tbody>
             </table>
         </div>`;
-
-        for (const [key, value] of Object.entries(schedule)) {
-            if(RELATIONSHIP_PROPERTY_PATTERN.test(key)){
-                let row = document.createElement("tr");
-                row.innerHTML = `<td>${value.course.shiftTime}</td>
-                <td>${value.course.grade + " " + value.course.name}</td>
-                <td>${value.name}</td>
-                <td>${value.hours}</td>
-                <td>${value.distribution}</td>
-                <td>${value.classroom}</td>`;
+        schedule.teacherSubjects.forEach(element => {
+            let row = document.createElement("tr");
+                row.innerHTML = `<td>${element.course.shiftTime}</td>
+                <td>${element.course.grade + " " + element.course.name}</td>
+                <td>${element.name}</td>
+                <td>${element.hours}</td>
+                <td>${element.distribution}</td>
+                <td>${element.classroom}</td>`;
 
                 departmentDataHTML.querySelector(`#teacher${schedule.ref}Rows`).appendChild(row);
-            }
-        }
+        });
+
     });
 
     departmentSchedulesBtnHTML.disabled = true;
@@ -118,17 +117,55 @@ function showAllScheduleData() {
  * @param {number} departmentIndex Índice del departamento
  * @return {object[]} Arreglo de objetos con datos relacionales
  */
-function getAllScheduleData(departmentIndex) {
-    let filteredTeachers = teachers.filter(teacher => teacher.departmentIndex === departmentIndex);
+async function getAllScheduleData(departmentIndex) {
     let filteredData = [];
 
-    for(let i = 0; i < filteredTeachers.length; i++){
-        let relationshipData = getAllRelationshipData(i);
-        relationshipData.ref = i + 1;
-        relationshipData.teacherName = filteredTeachers[i].firstName + " " + filteredTeachers[i].lastName;
-        filteredData.push(relationshipData);
-    }
+    await fetch('http://localhost:8000/api/departamentos/' + departmentIndex)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Le data");
+            console.log(data);
+            console.log("not le data");
+            data.user.forEach(user => {
+                let thing = {};
 
+                thing.teacherName = user.name;
+                thing.teacherSubjects = [];
+                user.modulos.forEach(modulo => {
+                    let temporal = {};
+                    temporal.classroom = modulo.aulas[0].name;
+                    temporal.comments = modulo.observations;
+                    temporal.course = {};
+                    temporal.course.grade = modulo.curso.grade;
+                    temporal.course.name = modulo.curso.name;
+                    temporal.course.shiftTime = modulo.curso.turno;
+                    temporal.distribution = modulo.distribution;
+                    temporal.hours = modulo.hours;
+                    temporal.name = modulo.materia;
+                    thing.teacherSubjects.push(temporal);
+                });
+                filteredData.push(thing);
+            });
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+
+    let filteredTeachers = teachers.filter(teacher => teacher.departmentIndex === departmentIndex);
+
+    // for(let i = 0; i < filteredTeachers.length; i++){
+    //     let relationshipData = getAllRelationshipData(i);
+    //     relationshipData.ref = i + 1;
+    //     relationshipData.teacherName = filteredTeachers[i].firstName + " " + filteredTeachers[i].lastName;
+    //     filteredData.push(relationshipData);
+    // }
+    console.log("Filtered");
+    console.log(filteredData);
     return filteredData;
 }
 
@@ -142,7 +179,7 @@ function getAllRelationshipData(teacherIndex) {
     let filteredData = subjects.filter(subject => subject.teacherIndex === teacherIndex);
 
     return filteredData.reduce((acc, relationship, index) => {
-        const {courseIndex, specialtyIndex, teacherIndex, ...rest} = relationship;
+        const { courseIndex, specialtyIndex, teacherIndex, ...rest } = relationship;
         let courseData = getCourseData(courseIndex);
 
         const propertyName = `relationship${index + 1}`;

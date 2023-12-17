@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\ModuloController;
 use App\Http\Controllers\Auth\LoginRegisterController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\DepartamentoController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,6 +41,7 @@ Route::controller(ModuloController::class)->group(function() {
 });
 
 Route::apiResource('users', UserController::class);
+Route::apiResource('departamentos', DepartamentoController::class);
 
 // Protected routes of product and logout
 Route::middleware('auth:sanctum')->group( function () {
