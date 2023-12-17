@@ -47,33 +47,65 @@ class DatabaseSeeder extends Seeder
         $aula = new Aula;
         $aula->name = "A21";
         $aula->save();
-
+        $aula = new Aula;
+        $aula->name = "A27";
+        $aula->save();
 
 
         $user = new User;
         $user->name = "Dani";
-        $user->email = "Email";
-        $user->totalHours = 9;
+        $user->lastName = "Rodríguez Ravelo";
+        $user->email = "email@gmail.com";
         $user->observations = "asdasdasd";
         $user->departamento_id = 1;
         $user->especialidad_id = 1;
         $user->password = "aaa";
         $user->save();
 
+        $user = new User;
+        $user->name = "Ignacio";
+        $user->lastName = "Revilla";
+        $user->email = "email1@gmail.com";
+        $user->observations = "asdasdasd";
+        $user->departamento_id = 2;
+        $user->especialidad_id = 2;
+        $user->password = "aaa";
+        $user->save();
+
         $mod = new Modulo;
-        $mod->cod = "DEW";
-        $mod->materia = "Desarrolo entorno cliente";
+        $mod->cod = "DSW";
+        $mod->materia = "Desarrollo entorno web";
+        $mod->hours = 9;
         $mod->especialidad_id = 1;
         $mod->curso_id = 1;
+        $mod->user_id = 1;
         $mod->save();
-        $mod->especialidad;
-        $mod->curso;
 
-        $mod->aulas()->attach($aula);
+        $mod = new Modulo;
+        $mod->cod = "IDK";
+        $mod->materia = "Ingles";
+        $mod->hours = 3;
+        $mod->especialidad_id = 1;
+        $mod->curso_id = 1;
+        $mod->user_id = 2;
+        $mod->save();
 
-        // Optional
-        // $mod->aulas()->get();
-        // $aula->modulos()->get();
-        // $mod
+        $mod = new Modulo;
+        $mod->cod = "RED";
+        $mod->materia = "Redes";
+        $mod->hours = 1;
+        $mod->especialidad_id = 1;
+        $mod->curso_id = 1;
+        $mod->user_id = 1;
+        $mod->save();
+
+        $mod = new Modulo;
+        $mod->cod = "DPL";
+        $mod->materia = "Despliegue servidor";
+        $mod->hours = 5;
+        $mod->especialidad_id = 1;
+        $mod->curso_id = 1;
+        $mod->user_id = 1;
+        $mod->save();
     }
 }
