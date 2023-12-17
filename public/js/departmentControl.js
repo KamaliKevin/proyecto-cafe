@@ -23,9 +23,9 @@ departmentWarnedTeachersBtnHTML.addEventListener("click", showAllWarnedTeacherDa
  * Muestra los datos de los profesores que no cumplen o sobrepasan las 18 horas semanales
  * @return {void}
  */
-function showAllWarnedTeacherData() {
+async function showAllWarnedTeacherData() {
     departmentDataHTML.innerHTML = "";
-    let allWarnedTeacherData = getAllWarnedTeacherData();
+    let allWarnedTeacherData = await getAllWarnedTeacherData();
 
     allWarnedTeacherData.forEach(teacher => {
         if (teacher.totalHours < 18 || teacher.totalHours > 18) {
@@ -44,17 +44,20 @@ function showAllWarnedTeacherData() {
  * Consigue un arreglo de objetos de los profesores que no cumplen o sobrepasan las 18 horas semanales
  * @return {object[]} Arreglos de objetos con los datos de dichos profesores
  */
-function getAllWarnedTeacherData() {
-    let allScheduleData = getAllScheduleData(DEPARTMENT_INDEX);
+async function getAllWarnedTeacherData() {
+    let allScheduleData = await getAllScheduleData(1);
     let allWarnedTeacherData = [];
     allScheduleData.forEach(schedule => {
         let data = {};
         let totalHours = 0;
-        for (const [key, value] of Object.entries(schedule)) {
-            if (RELATIONSHIP_PROPERTY_PATTERN.test(key)) {
-                totalHours += value.hours;
+        console.log("warning");
+        console.log(schedule);
+        schedule.teacherSubjects.forEach(element => {
+            console.log(element);
+            if (element.hours != null) {
+                totalHours += element.hours;
             }
-        }
+        });
         data.name = schedule.teacherName;
         data.totalHours = totalHours;
         allWarnedTeacherData.push(data);
@@ -94,14 +97,14 @@ async function showAllScheduleData() {
         </div>`;
         schedule.teacherSubjects.forEach(element => {
             let row = document.createElement("tr");
-                row.innerHTML = `<td>${element.course.shiftTime}</td>
+            row.innerHTML = `<td>${element.course.shiftTime}</td>
                 <td>${element.course.grade + " " + element.course.name}</td>
                 <td>${element.name}</td>
                 <td>${element.hours}</td>
                 <td>${element.distribution}</td>
                 <td>${element.classroom}</td>`;
 
-                departmentDataHTML.querySelector(`#teacher${schedule.ref}Rows`).appendChild(row);
+            departmentDataHTML.querySelector(`#teacher${schedule.ref}Rows`).appendChild(row);
         });
 
     });
