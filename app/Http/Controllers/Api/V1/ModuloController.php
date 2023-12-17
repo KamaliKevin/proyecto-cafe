@@ -119,7 +119,7 @@ class ModuloController extends Controller
         }
 
         $mod -> user_id = $user->id;
-        $mod -> weeklyDistribution = $request['weeklyDistribution'];
+        $mod -> weekDistribution = $request['weekDistribution'];
         $mod -> observations =  $request['observations'];
         $mod -> save();
         $response = [

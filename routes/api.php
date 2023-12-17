@@ -39,7 +39,7 @@ Route::controller(ModuloController::class)->group(function() {
     Route::get('/modulos/profesor/{id}', 'indexTeacher');
     Route::get('/modulos/profesorm/{id}', 'indexTeacherMissing');
     Route::get('/modulos/removeteacher/{id}', 'removeTeacherIndex');
-    Route::post('/modulos/addteacher/{teachID}/{ModuleID}', 'addTeacher');
+    Route::post('/modulos/addteacher/', 'addTeacher');
 });
 
 Route::apiResource('users', UserController::class);
