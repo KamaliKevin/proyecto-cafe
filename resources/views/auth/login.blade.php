@@ -1,39 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Bootstrap CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <!-- CSS personalizado -->
-    <link href="{{ asset('css/main.css')}}" rel="stylesheet">
-    <!-- //<link href="css/main.css" rel="stylesheet"> -->
-
-    <title>Iniciar sesión - CIFP Majada Marcial</title>
-</head>
-
-<body class="palegrey-bg">
+@section('content')
     <div class="d-flex justify-content-center align-content-center">
-
         <!-- Formulario -->
         <form method="POST" action="{{ route('login') }}" class="form-width bg-white my-5 border border-dark border-1 rounded-3" id="loginForm" name="loginForm">
             @csrf
-            <!-- Título del formulario -->
-            <div class="py-3 px-5 semiblack-bg text-white border border-dark border-3 rounded-top-3">
-                <h4>Iniciar sesión</h4>
-            </div>
 
-            <!-- Logo -->
-            <div class="d-flex justify-content-center align-content-center pt-3">
-                <div class="m-logo-width">
-                    <!-- <img src="{{ asset('images/logo.png')}}" class="img-fluid" alt="Logo"> -->
-                    <img src="images/logo.png" class="img-fluid" alt="Logo">
-                </div>
-            </div>
+            @include('partials.content-title', ['contentTitle' => 'Iniciar sesión'])
+
+            @include('partials.logo', ['logoClass' => 'm-logo-width'])
 
             <!-- Contenido del formulario -->
             <div class="py-3 px-5" id="loginFormContent">
@@ -65,10 +40,4 @@
             </div>
         </form>
     </div>
-
-    <!-- Bootstrap JS -->
-    <script src="js/bootstrap.min.js"></script>
-    <!-- Control de inicio de sesión -->
-    <script src="js/loginControl.js"></script>
-</body>
-</html>
+@endsection

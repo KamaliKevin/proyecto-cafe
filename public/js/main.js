@@ -7,7 +7,7 @@ const DEFAULT_SUBJECT_OPTION = "-- Elija un módulo --";
 
 // ================== VARIABLES ===================
 let currentRelationshipData = []; // Arreglo de objectos de los módulos relacionados
-getAllRelationshipData();
+getAllRelationshipDataTeacher();
 
 
 // ================== REFERENCIAS HTML ===================
@@ -188,7 +188,7 @@ async function removeRelationshipData(relationshipRef) {
         });
     subjectContainerHTML.innerHTML = "";
     currentRelationshipData = [];
-    await getAllRelationshipData();
+    await getAllRelationshipDataTeacher();
 }
 
 
@@ -230,12 +230,13 @@ async function saveAddRelationshipData(relationshipRef) {
             addSubjectContainerHTML.innerHTML = "";
             subjectContainerHTML.innerHTML = "";
             createAddSubjectBtn();
-            currentRelationshipData = [];
-            getAllRelationshipData();
         })
         .catch(error => {
             console.error('Fetch error:', error);
         });
+        currentRelationshipData = [];
+        getAllRelationshipDataTeacher();
+
 }
 
 
@@ -315,7 +316,7 @@ async function createAddRelationshipDataForm() {
  * @return {void}
  */
 function updateAllRelationshipData(teacherIndex, isDeletingOrAdding = false) {
-    currentRelationshipData = getAllRelationshipData(teacherIndex);
+    currentRelationshipData = getAllRelationshipDataTeacher();
 
     let totalHours = currentRelationshipData.reduce((accumulator, relationship) => {
         return accumulator + relationship.hours;
@@ -365,7 +366,7 @@ function getRelationshipIndex(relationshipRef) {
  * @param {number} teacherIndex Índice del profesor/a
  * @return {object[]} Arreglo de objetos con datos relacionales
  */
-async function getAllRelationshipData() {
+async function getAllRelationshipDataTeacher() {
     const userID = localStorage.getItem('userID');
     await fetch('http://localhost:8000/api/modulos/profesor/' + userID)
         .then(response => {

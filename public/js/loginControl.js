@@ -29,7 +29,7 @@ function login() {
       console.log(response);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userID', response.data.user.id);
-      window.location.href = 'schedule.html';
+      //window.location.href = 'schedule.html';
       // Store the token securely (e.g., in localStorage) for subsequent requests
     })
     .catch(error => {

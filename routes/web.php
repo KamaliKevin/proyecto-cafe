@@ -18,10 +18,26 @@ Route::get('/', function () {
     return view('auth/login');
 });
 
+Route::get('/department', function () {
+    return view('department');
+})->name('department');
+
+Route::get('/teacher', function () {
+    return view('teacher');
+})->name('teacher');
+
+Route::get('/studies', function () {
+    return view('studies');
+})->name('studies');
+
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', function () {
+    return view('teacher');
+});
+
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);
