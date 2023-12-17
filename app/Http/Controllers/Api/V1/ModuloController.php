@@ -52,16 +52,36 @@ class ModuloController extends Controller
         return response()->json($response, 200);
     }
 
-    public function indexTeacherMissing($teachId)
+    public function removeTeacherIndex($moduloID)
     {
-        // Assuming you have the user ID
-        $user = User::findOrFail($teachId);
+        $mod = Modulo::findOrFail($moduloID);
+
+        if (is_null($mod)) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No module found!',
+            ], 200);
+        }
+
+        $mod->user_id = null;
+        $mod->save();
+
+        $response = [
+            'status' => 'success',
+            'message' => 'teacher has been dissociated.',
+        ];
+        return response()->json( $response ,200);
+    }
+
+    public function indexTeacherMissing($teachID)
+    {
+        $user = User::findOrFail($teachID);
 
         $modulos = Modulo::where('especialidad_id', $user->especialidad_id)
-            ->whereDoesntHave('user', function ($query) use ($teachId) {
-                $query->where('user_id', $teachId);
+            ->whereDoesntHave('user', function ($query) use ($teachID) {
+                $query->where('user_id', $teachID);
             })
-            ->with('especialidad') // Use with() to keep null values
+            ->with('especialidad')
             ->get();
 
 
@@ -76,6 +96,36 @@ class ModuloController extends Controller
             'status' => 'success',
             'message' => 'modulos are retrieved successfully.',
             'data' => $modulos,
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    public function addTeacher(Request $request)
+    {
+        $moduloID = $request['moduloID'];
+        $teachID = $request['teachID'];
+        
+        $mod = Modulo::findOrFail($moduloID);
+        $user = User::findOrFail($teachID);
+
+
+
+        if (is_null($mod->first()) || is_null($user->first())) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'One of the parameters not found',
+            ], 200);
+        }
+
+        $mod -> user_id = $user->id;
+        $mod -> weeklyDistribution = $request['weeklyDistribution'];
+        $mod -> observations =  $request['observations'];
+        $mod -> save();
+        $response = [
+            'status' => 'success',
+            'message' => 'Teacher has been associated successfully',
+            'data' => $mod,
         ];
 
         return response()->json($response, 200);
@@ -123,7 +173,7 @@ class ModuloController extends Controller
      */
     public function show($id)
     {
-        $modulo = Modulo::where('id',$id)->with('aulas')->with('curso')->get();
+        $modulo = Modulo::where('id', $id)->with('aulas')->with('curso')->get();
         return response()->json($modulo, 200);
     }
     /**

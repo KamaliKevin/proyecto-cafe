@@ -38,6 +38,8 @@ Route::controller(ModuloController::class)->group(function() {
     Route::get('/modulos/show/{id}', 'show');
     Route::get('/modulos/profesor/{id}', 'indexTeacher');
     Route::get('/modulos/profesorm/{id}', 'indexTeacherMissing');
+    Route::get('/modulos/removeteacher/{id}', 'removeTeacherIndex');
+    Route::post('/modulos/addteacher/{teachID}/{ModuleID}', 'addTeacher');
 });
 
 Route::apiResource('users', UserController::class);

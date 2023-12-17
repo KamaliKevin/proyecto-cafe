@@ -171,16 +171,24 @@ function editRelationshipData(relationshipRef) {
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
  * @return {void}
  */
-function removeRelationshipData(relationshipRef) {
-    let specificSubjectContainerHTML = document.getElementById(`subject${relationshipRef}Container`);
-
-    let specificSubjectFields = getRelationshipFields(relationshipRef);
-    let specificSubjectIndex = getSubjectIndex(specificSubjectFields.nameHTML.value);
-
-    specificSubjectContainerHTML.remove();
-
-    deleteRelationshipData(specificSubjectIndex);
-    updateAllRelationshipData(TEACHER_INDEX, true);
+async function removeRelationshipData(relationshipRef) {
+    subjectContainerHTML.innerHTML = "";
+    console.log("Deleting" + relationshipRef)
+    await fetch('http://localhost:8000/api/modulos/removeteacher/' + relationshipRef)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+    subjectContainerHTML.innerHTML = "";
+    currentRelationshipData = [];
+    await getAllRelationshipData();
 }
 
 
@@ -304,66 +312,24 @@ async function createAddRelationshipDataForm() {
         deleteAddSubjectBtn();
     }
 
-    let relationshipRef = 2;
-    addSubjectContainerHTML.innerHTML += `
-        <form class="mb-3" id="addSubjectForm">
-            <h5>Ponga los datos del nuevo módulo:</h5>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}Name" class="form-label">Módulo</label>
-                <select class="form-select" id="subject${relationshipRef}Name" 
-                name="subject${relationshipRef}Name">
-                    <!-- Aquí van todos los nombres de módulos -->
-                    <option value="${DEFAULT_SUBJECT_OPTION}">${DEFAULT_SUBJECT_OPTION}</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
-                <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
-                name="subject${relationshipRef}ShiftTime" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}Grade" class="form-label">Grado</label>
-                <input type="text" class="form-control" id="subject${relationshipRef}Grade" 
-                name="subject${relationshipRef}Grade" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}CourseName" class="form-label">Ciclo</label>
-                <input type="text" class="form-control" id="subject${relationshipRef}CourseName" 
-                name="subject${relationshipRef}CourseName" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}Classroom" class="form-label">Aula</label>
-                <input type="text" class="form-control" id="subject${relationshipRef}Classroom" 
-                name="subject${relationshipRef}Classroom" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}Hours" class="form-label">Horas semanales</label>
-                <input type="text" class="form-control" id="subject${relationshipRef}Hours" 
-                name="subject${relationshipRef}Hours" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
-                <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
-                name="subject${relationshipRef}Distribution">
-            </div>
-            <div class="mb-3">
-                <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
-                <textarea class="form-control" id="subject${relationshipRef}Comments" 
-                name="subject${relationshipRef}Comments" rows="5"></textarea>
-            </div>
-            <button type="button" class="btn btn-success" id="subject${relationshipRef}SaveBtn">
-                <i class='fa-solid fa-floppy-disk'></i> Guardar módulo
-            </button>
-            <button type="button" class="btn btn-danger" id="subject${relationshipRef}CancelBtn">
-                <i class='fa-solid fa-circle-xmark'></i> Cancelar módulo
-            </button>
-        </form>`;
 
+    let relationshipRef = 2;
 
     // Filtrar las opciones a la hora de añadir un módulo:
 
     const userID = localStorage.getItem('userID');
     let moduleData;
+    addSubjectContainerHTML.innerHTML += `
+        <form class="mb-3" id="addSubjectForm">
+            <h5>Ponga los datos del nuevo módulo:</h5>
+            <div class="mb-3">
+                <label for="subjectChooseName" class="form-label">Módulo</label>
+                <select class="form-select" id="subjectChooseName" 
+                name="subjectChooseName">
+                    <!-- Aquí van todos los nombres de módulos -->
+                    <option value="${DEFAULT_SUBJECT_OPTION}">${DEFAULT_SUBJECT_OPTION}</option>
+                </select>
+            </div>`;
     console.log(relationshipRef);
     await fetch('http://localhost:8000/api/modulos/profesorm/' + userID)
         .then(response => {
@@ -380,7 +346,8 @@ async function createAddRelationshipDataForm() {
                 let subjectOptionHTML = document.createElement("option");
                 subjectOptionHTML.value = element.materia;
                 subjectOptionHTML.textContent = element.materia;
-                addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`).appendChild(subjectOptionHTML);
+                subjectOptionHTML.setAttribute('data-id', element.id);
+                addSubjectContainerHTML.querySelector(`#subjectChooseName`).appendChild(subjectOptionHTML);
             });
         })
         .catch(error => {
@@ -388,9 +355,14 @@ async function createAddRelationshipDataForm() {
         });
 
     // Hacer que el autocompletado cuando se elija un módulo sea efectivo:
-    let subjectNameHTML = addSubjectContainerHTML.querySelector(`#subject${relationshipRef}Name`);
-    subjectNameHTML.addEventListener("change", () => toggleRelationshipData(relationshipRef));
-    // subjectNameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
+    let subjectNameHTML = addSubjectContainerHTML.querySelector(`#subjectChooseName`);
+    subjectNameHTML.addEventListener("change", () => toggleRelationshipData());
+    subjectNameHTML.customToggleRelationShipDataRef = toggleRelationshipDataRef;
+
+
+
+
+
 }
 
 
@@ -467,32 +439,32 @@ async function getAllRelationshipData() {
 
             }
             data.data.forEach(data => {
+                console.log("eeee");
+                console.log(data);
                 let smallData = {}
                 smallData.id = data.id;
                 smallData.name = data.materia;
                 smallData.course = {
                     index: data.curso.id - 1,
-                    grade: data.curso.grado,
+                    grade: data.curso.grade,
                     name: data.curso.name,
                     shiftTime: data.curso.turno
                 }
 
                 // smallData.codigo = data.cod;
-                //smallData.classroom = []
-                // data.aulas.forEach(classroom => {
-                //     smallData.classroom.push(classroom.name)
-                // });
+                smallData.classroom = []
+                data.aulas.forEach(classroom => {
+                    smallData.classroom.push(classroom.name)
+                });
                 smallData.classroom = "A";
-                // smallData.hours = data.hours;
-                smallData.hours = 5;
+                smallData.hours = data.hours;
 
                 smallData.specialty = {
                     index: data.especialidad.id - 1,
                     name: data.especialidad.name
                 }
                 //smallData.teacherIndex = data.user.id - 1;
-                smallData.distribution = data.distribution;
-                smallData.distribution = "5";
+                smallData.distribution = data.weekDistribution;
                 // smallData.comments = data.comments;
                 smallData.comments = "AA";
                 currentRelationshipData.push(smallData);
@@ -529,7 +501,7 @@ function getRelationshipRefFromEvent(event) {
 function getRelationshipFields(relationshipRef) {
     return {
         titleHTML: document.getElementById(`subject${relationshipRef}Title`),
-        nameHTML: document.getElementById(`subject${relationshipRef}Name`),
+        nameHTML: document.getElementById(`subjectChooseName`),
         shiftTimeHTML: document.getElementById(`subject${relationshipRef}ShiftTime`),
         gradeHTML: document.getElementById(`subject${relationshipRef}Grade`),
         courseNameHTML: document.getElementById(`subject${relationshipRef}CourseName`),
@@ -572,48 +544,96 @@ function createAddSubjectBtn() {
  * @param {number} relationshipRef Referencia numérica del módulo relacionado
  * @return {void}
  */
-async function toggleRelationshipData(relationshipRef) {
-    console.log(relationshipRef);
-    relationshipRef = relationshipRef;
+async function toggleRelationshipData() {
+    let relationshipRef;
+    console.log("change!");
+    let optionsHTML = document.querySelector("#subjectChooseName");
+
+    relationshipRef = optionsHTML.options[optionsHTML.selectedIndex].getAttribute('data-id');
+
+    addSubjectContainerHTML.innerHTML += `
+    <div class="mb-3">
+        <label for="subject${relationshipRef}ShiftTime" class="form-label">Turno</label>
+        <input type="text" class="form-control" id="subject${relationshipRef}ShiftTime" 
+        name="subject${relationshipRef}ShiftTime" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="subject${relationshipRef}Grade" class="form-label">Grado</label>
+        <input type="text" class="form-control" id="subject${relationshipRef}Grade" 
+        name="subject${relationshipRef}Grade" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="subject${relationshipRef}CourseName" class="form-label">Ciclo</label>
+        <input type="text" class="form-control" id="subject${relationshipRef}CourseName" 
+        name="subject${relationshipRef}CourseName" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="subject${relationshipRef}Classroom" class="form-label">Aula</label>
+        <input type="text" class="form-control" id="subject${relationshipRef}Classroom" 
+        name="subject${relationshipRef}Classroom" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="subject${relationshipRef}Hours" class="form-label">Horas semanales</label>
+        <input type="text" class="form-control" id="subject${relationshipRef}Hours" 
+        name="subject${relationshipRef}Hours" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="subject${relationshipRef}Distribution" class="form-label">Distribución semanal</label>
+        <input type="text" class="form-control" id="subject${relationshipRef}Distribution" 
+        name="subject${relationshipRef}Distribution">
+    </div>
+    <div class="mb-3">
+        <label for="subject${relationshipRef}Comments" class="form-label">Comentarios</label>
+        <textarea class="form-control" id="subject${relationshipRef}Comments" 
+        name="subject${relationshipRef}Comments" rows="5"></textarea>
+    </div>
+    <button type="button" class="btn btn-success" id="subject${relationshipRef}SaveBtn">
+        <i class='fa-solid fa-floppy-disk'></i> Guardar módulo
+    </button>
+    <button type="button" class="btn btn-danger" id="subject${relationshipRef}CancelBtn">
+        <i class='fa-solid fa-circle-xmark'></i> Cancelar módulo
+    </button>
+</form>`;
+
     let specificSubjectFields = getRelationshipFields(relationshipRef);
 
-        specificSubjectFields.nameHTML.value = "";
-        specificSubjectFields.shiftTimeHTML.value = "";
-        specificSubjectFields.gradeHTML.value = "";
-        specificSubjectFields.courseNameHTML.value = "";
-        specificSubjectFields.classroomHTML.value = "";
-        specificSubjectFields.hoursHTML.value = "";
+    specificSubjectFields.nameHTML.value = "";
+    specificSubjectFields.shiftTimeHTML.value = "";
+    specificSubjectFields.gradeHTML.value = "";
+    specificSubjectFields.courseNameHTML.value = "";
+    specificSubjectFields.classroomHTML.value = "";
+    specificSubjectFields.hoursHTML.value = "";
 
-        await fetch('http://localhost:8000/api/modulos/show/' + relationshipRef)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                data = data[0];
-                console.log(data);
+    await fetch('http://localhost:8000/api/modulos/show/' + relationshipRef)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            data = data[0];
+            console.log(data);
 
 
-                specificSubjectFields.nameHTML.value = data.materia;
-                specificSubjectFields.shiftTimeHTML.value = data.curso.turno;
-                specificSubjectFields.gradeHTML.value = data.grade;
-                specificSubjectFields.courseNameHTML.value = data.curso.name;
-                data.aulas.forEach(element => {
-                    specificSubjectFields.classroomHTML.value =+ element;
-                });
-                specificSubjectFields.hoursHTML.value = data.hours;
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
+            specificSubjectFields.nameHTML.value = data.materia;
+            specificSubjectFields.shiftTimeHTML.value = data.curso.turno;
+            specificSubjectFields.gradeHTML.value = data.curso.grade;
+            specificSubjectFields.courseNameHTML.value = data.curso.name;
+            data.aulas.forEach(element => {
+                specificSubjectFields.classroomHTML.value += element.name;
             });
+            specificSubjectFields.hoursHTML.value = data.hours;
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
 
 }
 
 
 /**
- * Muestra todos los módulos relacionados a un profesor/a
+ * Muestra todos los módulos relacionados a un profesor/aF
  * @return {void}
  */
 function showAllRelationshipData() {
@@ -746,7 +766,7 @@ async function showTeacherData() {
             data = data[0];
             console.log(data);
             firstNameHTML.value = data.name;
-            lastNameHTML.value = data.lastName = "oops";
+            lastNameHTML.value = data.lastName;
             departmentHTML.value = data.departamento.name;
             specialtyHTML.value = data.especialidad.name;
         })
