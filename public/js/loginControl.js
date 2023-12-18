@@ -3,7 +3,7 @@ let csrfToken;
 let token;
 let userID;
 // Assuming you use the Fetch API
-fetch('http://localhost:8000/csrf-token')
+fetch('https://cafe-odiy.onrender.com/csrf-token')
   .then(response => response.json())
   .then(data => {
     csrfToken = data.token;
@@ -16,7 +16,7 @@ function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
   console.log(email, password);
-  fetch('http://localhost:8000/api/login', {
+  fetch('https://cafe-odiy.onrender.com/api/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

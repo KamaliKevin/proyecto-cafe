@@ -25,4 +25,4 @@ RUN php artisan config:cache && \
 php artisan route:cache && \
 chmod 775 -R /var/www/html/storage/ && \
 chown -R www-data:www-data /var/www/ && \
-a2enmod rewrite
+a2enmod rewrite 

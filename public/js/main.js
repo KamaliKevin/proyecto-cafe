@@ -174,7 +174,7 @@ function editRelationshipData(relationshipRef) {
 async function removeRelationshipData(relationshipRef) {
     subjectContainerHTML.innerHTML = "";
     console.log("Deleting" + relationshipRef)
-    await fetch('http://localhost:8000/api/modulos/removeteacher/' + relationshipRef)
+    await fetch('https://cafe-odiy.onrender.com/api/modulos/removeteacher/' + relationshipRef)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -212,7 +212,7 @@ async function saveAddRelationshipData(relationshipRef) {
         observations: specificSubjectFields.commentsHTML.value,
     };
 
-    await fetch('http://localhost:8000/api/modulos/addteacher/', {
+    await fetch('https://cafe-odiy.onrender.com/api/modulos/addteacher/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -278,7 +278,7 @@ async function createAddRelationshipDataForm() {
                 </select>
             </div>`;
     console.log(relationshipRef);
-    await fetch('http://localhost:8000/api/modulos/profesorm/' + userID)
+    await fetch('https://cafe-odiy.onrender.com/api/modulos/profesorm/' + userID)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -368,7 +368,7 @@ function getRelationshipIndex(relationshipRef) {
  */
 async function getAllRelationshipDataTeacher() {
     const userID = localStorage.getItem('userID');
-    await fetch('http://localhost:8000/api/modulos/profesor/' + userID)
+    await fetch('https://cafe-odiy.onrender.com/api/modulos/profesor/' + userID)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -544,7 +544,7 @@ async function toggleRelationshipData() {
     specificSubjectFields.classroomHTML.value = "";
     specificSubjectFields.hoursHTML.value = "";
 
-    await fetch('http://localhost:8000/api/modulos/show/' + relationshipRef)
+    await fetch('https://cafe-odiy.onrender.com/api/modulos/show/' + relationshipRef)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -695,7 +695,7 @@ async function showTeacherData() {
     console.log("AAAAAAAAAAAAAAAAAAAA");
 
     const userID = localStorage.getItem('userID');
-    await fetch('http://localhost:8000/api/users/' + userID)
+    await fetch('https://cafe-odiy.onrender.com/api/users/' + userID)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);

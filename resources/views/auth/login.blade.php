@@ -40,4 +40,23 @@
             </div>
         </form>
     </div>
+
+    @auth
+        <script>
+            // Custom JavaScript code to execute after successful login
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('loginForm').addEventListener('submit', function (event) {
+                    // Prevent the default form submission
+                    event.preventDefault();
+
+                    // Your custom code here, for example, storing user ID in localStorage
+                    var userId = {{ auth()->id() }};
+                    localStorage.setItem('userID', userId);
+
+                    // Submit the form programmatically if needed
+                    this.submit();
+                });
+            });
+        </script>
+    @endauth
 @endsection

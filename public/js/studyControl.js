@@ -167,7 +167,7 @@ async function showStudyData(departmentID) {
  * @return {void}
  */
 async function showAllStudyNames() {
-    await fetch('http://localhost:8000/api/departamentos')
+    await fetch('https://cafe-odiy.onrender.com/api/departamentos')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);

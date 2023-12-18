@@ -124,7 +124,7 @@ async function showAllScheduleData() {
 async function getAllScheduleData(departmentIndex) {
     let filteredData = [];
 
-    await fetch('http://localhost:8000/api/departamentos/' + departmentIndex)
+    await fetch('https://cafe-odiy.onrender.com/api/departamentos/' + departmentIndex)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
